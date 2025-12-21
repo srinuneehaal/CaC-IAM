@@ -4,9 +4,8 @@ import com.cac.iam.config.FileLocationProperties;
 import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.LoadedFile;
 import com.cac.iam.util.PathUtils;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.finbourne.identity.model.CreateUserRequest;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -42,8 +41,7 @@ public class UserFileParsingStrategy implements FileParsingStrategy {
         if (path == null || !Files.exists(path)) {
             throw new IOException("User file does not exist: " + path);
         }
-        JsonNode json = objectMapper.readTree(path.toFile());
-        ObjectNode payload = json.isObject() ? (ObjectNode) json : objectMapper.createObjectNode();
+        CreateUserRequest payload = objectMapper.readValue(path.toFile(), CreateUserRequest.class);
         String key = extractKey(payload);
         if (key == null || key.isBlank()) {
             key = PathUtils.baseName(path);
@@ -51,17 +49,15 @@ public class UserFileParsingStrategy implements FileParsingStrategy {
         return new LoadedFile(getCategory(), key, path, payload);
     }
 
-    private String extractKey(ObjectNode payload) {
+    private String extractKey(CreateUserRequest payload) {
         if (payload == null) {
             return null;
         }
-        JsonNode login = payload.get("login");
-        if (login != null && login.isTextual()) {
-            return login.asText();
+        if (payload.getLogin() != null && !payload.getLogin().isBlank()) {
+            return payload.getLogin();
         }
-        JsonNode email = payload.get("emailAddress");
-        if (email != null && email.isTextual()) {
-            return email.asText();
+        if (payload.getEmailAddress() != null && !payload.getEmailAddress().isBlank()) {
+            return payload.getEmailAddress();
         }
         return null;
     }

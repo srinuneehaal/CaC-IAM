@@ -1,12 +1,16 @@
 package com.cac.iam.service.apply;
 
 import com.cac.iam.config.FileLocationProperties;
+import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.MasterPlan;
 import com.cac.iam.model.PlanItem;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
+import com.finbourne.identity.model.CreateUserRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -16,6 +20,8 @@ import java.nio.file.Path;
 @Component
 public class PlanReader {
 
+    private static final Logger log = LoggerFactory.getLogger(PlanReader.class);
+
     private final FileLocationProperties fileLocationProperties;
     private final ObjectMapper objectMapper;
 
@@ -24,44 +30,44 @@ public class PlanReader {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Reads and converts the configured master plan file into a {@link MasterPlan}.
+     *
+     * @return populated master plan
+     * @throws IllegalStateException if the plan file is missing or cannot be parsed
+     */
     public MasterPlan read() {
-        Path masterPlanPath = fileLocationProperties.masterPlanPath();
-        if (!Files.exists(masterPlanPath)) {
-            throw new IllegalStateException("Master plan not found at " + masterPlanPath.toAbsolutePath());
+        Path inputPath = fileLocationProperties.masterPlanPath();
+        if (!Files.exists(inputPath)) {
+            throw new IllegalStateException("Plan file not found at " + inputPath.toAbsolutePath());
         }
         try {
-            MasterPlan plan = objectMapper.readValue(masterPlanPath.toFile(), MasterPlan.class);
-            rehydratePayloads(plan);
+            JsonNode root = objectMapper.readTree(inputPath.toFile());
+            MasterPlan plan = new MasterPlan();
+            JsonNode itemsNode = root.get("items");
+            if (itemsNode == null || !itemsNode.isArray()) {
+                log.warn("Plan file {} contains no items array", inputPath.toAbsolutePath());
+                return plan;
+            }
+            for (JsonNode itemNode : itemsNode) {
+                PlanItem planItem = objectMapper.treeToValue(itemNode, PlanItem.class);
+                planItem.setPayload(convertPayload(planItem.getFileCategory(), itemNode.get("payload")));
+                plan.addItem(planItem);
+            }
             return plan;
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to read master plan at " + masterPlanPath, e);
+            throw new IllegalStateException("Unable to read plan file", e);
         }
     }
 
-    private void rehydratePayloads(MasterPlan plan) {
-        if (plan == null || plan.getItems() == null) {
-            return;
-        }
-        for (PlanItem item : plan.getItems()) {
-            if (item == null || item.getFileCategory() == null) {
-                continue;
-            }
-            switch (item.getFileCategory()) {
-                case POLICIES -> item.setPayload(convert(item.getPayload(), PolicyCreationRequest.class));
-                case ROLES -> item.setPayload(convert(item.getPayload(), RoleCreationRequest.class));
-                case USERS -> item.setPayload(convert(item.getPayload(), ObjectNode.class));
-                default -> { }
-            }
-        }
-    }
-
-    private <T> T convert(Object payload, Class<T> type) {
-        if (payload == null) {
+    private Object convertPayload(FileCategory category, JsonNode payloadNode) {
+        if (payloadNode == null || payloadNode.isNull() || category == null) {
             return null;
         }
-        if (type.isInstance(payload)) {
-            return type.cast(payload);
-        }
-        return objectMapper.convertValue(payload, type);
+        return switch (category) {
+            case POLICIES -> objectMapper.convertValue(payloadNode, PolicyCreationRequest.class);
+            case ROLES -> objectMapper.convertValue(payloadNode, RoleCreationRequest.class);
+            case USERS -> objectMapper.convertValue(payloadNode, CreateUserRequest.class);
+        };
     }
 }

@@ -1,6 +1,6 @@
 package com.cac.iam.runner;
 
-import com.cac.iam.service.apply.ApplyService;
+import com.cac.iam.service.PlanApplyService;
 import com.cac.iam.util.CommandLineFlags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ public class ApplyRunner implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(ApplyRunner.class);
     private static final String ARG_APPLY = "--apply";
 
-    private final ApplyService applyService;
+    private final PlanApplyService applyService;
 
-    public ApplyRunner(ApplyService applyService) {
+    public ApplyRunner(PlanApplyService applyService) {
         this.applyService = applyService;
     }
 
@@ -30,7 +30,7 @@ public class ApplyRunner implements CommandLineRunner {
             log.warn("Extra arguments detected alongside {}: {}", ARG_APPLY, List.of(args));
         }
         try {
-            applyService.applyMasterPlan();
+            applyService.applyPlan();
         } catch (Exception e) {
             log.error("Master plan application failed: {}", e.getMessage(), e);
         }

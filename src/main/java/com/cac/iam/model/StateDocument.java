@@ -15,6 +15,7 @@ public class StateDocument {
 
     private String scope;
 
+
     private JsonNode data;
 
     public String getId() {
@@ -40,6 +41,7 @@ public class StateDocument {
     public void setScope(String scope) {
         this.scope = scope;
     }
+
 
     public JsonNode getData() {
         return data;

@@ -1,8 +1,8 @@
 package com.cac.iam.model;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
+import com.finbourne.identity.model.CreateUserRequest;
 
 import java.util.Collections;
 import java.util.Map;
@@ -11,11 +11,11 @@ public class StateSnapshot {
 
     private final Map<String, PolicyCreationRequest> policies;
     private final Map<String, RoleCreationRequest> roles;
-    private final Map<String, ObjectNode> users;
+    private final Map<String, CreateUserRequest> users;
 
     public StateSnapshot(Map<String, PolicyCreationRequest> policies,
                          Map<String, RoleCreationRequest> roles,
-                         Map<String, ObjectNode> users) {
+                         Map<String, CreateUserRequest> users) {
         this.policies = policies == null ? Collections.emptyMap() : Collections.unmodifiableMap(policies);
         this.roles = roles == null ? Collections.emptyMap() : Collections.unmodifiableMap(roles);
         this.users = users == null ? Collections.emptyMap() : Collections.unmodifiableMap(users);
@@ -29,7 +29,7 @@ public class StateSnapshot {
         return roles;
     }
 
-    public Map<String, ObjectNode> getUsers() {
+    public Map<String, CreateUserRequest> getUsers() {
         return users;
     }
 }

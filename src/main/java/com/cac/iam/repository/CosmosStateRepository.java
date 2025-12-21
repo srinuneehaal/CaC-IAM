@@ -9,9 +9,9 @@ import com.cac.iam.model.StateDocument;
 import com.cac.iam.model.StateSnapshot;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
+import com.finbourne.identity.model.CreateUserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -19,7 +19,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Repository
 public class CosmosStateRepository {
@@ -44,7 +43,7 @@ public class CosmosStateRepository {
                 loadByCategory(FileCategory.POLICIES, PolicyCreationRequest.class);
         Map<String, RoleCreationRequest> roles =
                 loadByCategory(FileCategory.ROLES, RoleCreationRequest.class);
-        Map<String, ObjectNode> users = loadByCategory(FileCategory.USERS, ObjectNode.class);
+        Map<String, CreateUserRequest> users = loadByCategory(FileCategory.USERS, CreateUserRequest.class);
         return new StateSnapshot(policies, roles, users);
     }
 
@@ -52,6 +51,14 @@ public class CosmosStateRepository {
      * Upserts the supplied payload into the cosmos state container using the category as the partition key.
      */
     public void upsert(FileCategory category, String id, Object payload) {
+        upsert(category, id, payload, null);
+    }
+
+    /**
+     * Upserts the supplied payload into the cosmos state container using the category as the partition key, recording
+     * the supplied scope when present.
+     */
+    public void upsert(FileCategory category, String id, Object payload, String scope) {
         if (!StringUtils.hasText(id)) {
             log.warn("Cannot upsert {} with blank id", category);
             return;
@@ -60,7 +67,7 @@ public class CosmosStateRepository {
             StateDocument document = new StateDocument();
             document.setId(id);
             document.setTypeOfItem(category.name());
-            document.setScope("");
+            document.setScope(scope == null ? "" : scope);
             document.setData(objectMapper.valueToTree(payload));
             container.upsertItem(document, new PartitionKey(category.name()), null);
         } catch (Exception e) {
@@ -129,14 +136,12 @@ public class CosmosStateRepository {
         if (payload instanceof RoleCreationRequest role && StringUtils.hasText(role.getCode())) {
             return role.getCode();
         }
-        if (payload instanceof ObjectNode objectNode) {
-            String login = textValue(objectNode.get("login"));
-            if (StringUtils.hasText(login)) {
-                return login;
+        if (payload instanceof CreateUserRequest user) {
+            if (StringUtils.hasText(user.getLogin())) {
+                return user.getLogin();
             }
-            String email = textValue(objectNode.get("emailAddress"));
-            if (StringUtils.hasText(email)) {
-                return email;
+            if (StringUtils.hasText(user.getEmailAddress())) {
+                return user.getEmailAddress();
             }
         }
         if (document != null && StringUtils.hasText(document.getId())) {
