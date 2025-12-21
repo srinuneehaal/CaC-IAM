@@ -1,0 +1,62 @@
+{
+  "code": "example-policy",
+  "description": "Example policy demonstrating their creation",
+  "applications": [
+    "LUSID"
+  ],
+  "grant": "Allow",
+  "selectors": [
+    {
+      "idSelectorDefinition": {
+        "identifier": {
+          "scope": "official"
+        },
+        "actions": [
+          {
+            "scope": "default",
+            "activity": "Read",
+            "entity": "Portfolio"
+          },
+          {
+            "scope": "default",
+            "activity": "Aggregate",
+            "entity": "Portfolio"
+          }
+        ],
+        "name": "access-official-scope",
+        "description": "Allow readonly access to the 'official' scope"
+      }
+    }
+  ],
+  "for": [
+    {
+      "effectiveRange": {
+        "from": "2015-12-25T00:00:00.0000000+00:00",
+        "to": "2020-12-25T00:00:00.0000000+00:00"
+      }
+    },
+    {
+      "asAtRangeForSpec": {
+        "from": {
+          "dateTimeOffset": "2018-01-01T00:00:00.0000000+00:00"
+        },
+        "to": {
+          "value": "AsAt=Latest"
+        }
+      }
+    }
+  ],
+  "if": [
+    {
+      "ifRequestHeaderExpression": {
+        "headerName": "organisation.specific.group.header",
+        "operator": "EqualsCaseInsensitive",
+        "value": "special-group"
+      }
+    }
+  ],
+  "when": {
+    "activate": "2016-08-31T18:00:00.0000000+00:00",
+    "deactivate": "2020-08-31T18:00:00.0000000+00:00"
+  }
+}
