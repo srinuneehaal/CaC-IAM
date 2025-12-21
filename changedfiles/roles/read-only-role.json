@@ -1,0 +1,28 @@
+{
+  "code": "read-only-role",
+  "description": "This is an example role to demonstrate their creation",
+  "resource": {
+    "policyIdRoleResource": {
+      "policies": [
+        {
+          "scope": "default",
+          "code": "official-portfolios-read-only"
+        },
+        {
+          "scope": "default",
+          "code": "desk-portfolios"
+        }
+      ],
+      "policyCollections": [
+        {
+          "scope": "default",
+          "code": "CompanyEmployeeAccess"
+        }
+      ]
+    }
+  },
+  "when": {
+    "activate": "2016-08-31T18:00:00.0000000+00:00",
+    "deactivate": "2020-08-31T18:00:00.0000000+00:00"
+  }
+}

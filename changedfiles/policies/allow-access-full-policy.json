@@ -1,10 +1,10 @@
 {
-  "code": "example-policy",
+  "code": "allow-access-full-policy",
   "description": "Example policy demonstrating their creation",
   "applications": [
     "LUSID"
   ],
-  "grant": "Allow",
+  "grant": "ALLOW",
   "selectors": [
     {
       "idSelectorDefinition": {
@@ -31,14 +31,14 @@
   "for": [
     {
       "effectiveRange": {
-        "from": "2015-12-25T00:00:00.0000000+00:00",
-        "to": "2020-12-25T00:00:00.0000000+00:00"
+        "from": "2018-03-05T18:00:00.001Z",
+        "to": "2018-03-05T18:00:00.001Z"
       }
     },
     {
       "asAtRangeForSpec": {
         "from": {
-          "dateTimeOffset": "2018-01-01T00:00:00.0000000+00:00"
+          "dateTimeOffset": "2018-03-05T18:00:00.001Z"
         },
         "to": {
           "value": "AsAt=Latest"
@@ -46,17 +46,8 @@
       }
     }
   ],
-  "if": [
-    {
-      "ifRequestHeaderExpression": {
-        "headerName": "organisation.specific.group.header",
-        "operator": "EqualsCaseInsensitive",
-        "value": "special-group"
-      }
-    }
-  ],
   "when": {
-    "activate": "2016-08-31T18:00:00.0000000+00:00",
-    "deactivate": "2020-08-31T18:00:00.0000000+00:00"
+    "activate": "2018-03-05T18:00:00.001Z",
+    "deactivate": "2018-03-05T18:00:00.001Z"
   }
 }

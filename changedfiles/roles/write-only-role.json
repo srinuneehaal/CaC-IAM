@@ -1,5 +1,5 @@
 {
-  "code": "example-organisation-role-id",
+  "code": "write-only-role",
   "description": "This is an example role to demonstrate their creation",
   "resource": {
     "policyIdRoleResource": {
