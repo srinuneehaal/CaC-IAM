@@ -220,7 +220,7 @@
                 <option value="DELETE">Delete</option>
             </select>
             <label for="searchInput">Search</label>
-            <input id="searchInput" type="search" placeholder="Scope or key" />
+            <input id="searchInput" type="search" placeholder="Key search" />
             <button id="sortByAction" class="secondary">Sort by action</button>
         </div>
         <table>
@@ -228,7 +228,6 @@
             <tr>
                 <th>Action</th>
                 <th>Category</th>
-                <th>Scope</th>
                 <th>Key</th>
                 <th>Source path</th>
                 <th>Details</th>
@@ -378,7 +377,6 @@
         row.innerHTML = `
             <td><span class="badge ${action}">${action}</span></td>
             <td>${item.fileCategory || 'Unknown'}</td>
-            <td>${item.scope || ''}</td>
             <td>${item.key || ''}</td>
             <td>${item.sourcePath || ''}</td>
             <td></td>
@@ -462,8 +460,7 @@
         const filtered = items.filter(item => {
             const matchesAction = action ? item.action === action : true;
             const matchesCategory = category ? item.fileCategory === category : true;
-            const matchesSearch = !search || `${item.scope || ''}`.toLowerCase().includes(search)
-                || `${item.key || ''}`.toLowerCase().includes(search);
+            const matchesSearch = !search || `${item.key || ''}`.toLowerCase().includes(search);
             return matchesAction && matchesCategory && matchesSearch;
         });
         renderTable(filtered);

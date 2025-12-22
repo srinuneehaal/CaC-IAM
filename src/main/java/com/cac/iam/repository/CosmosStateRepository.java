@@ -2,7 +2,11 @@ package com.cac.iam.repository;
 
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosException;
+import com.azure.cosmos.models.CosmosItemRequestOptions;
+import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.PartitionKey;
+import com.azure.cosmos.models.SqlParameter;
+import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.StateDocument;
@@ -17,8 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Repository
 public class CosmosStateRepository {
@@ -34,7 +42,7 @@ public class CosmosStateRepository {
     }
 
     /**
-     * Loads the latest snapshot of roles and policies stored in Cosmos DB.
+     * Loads the latest snapshot of roles, policies stored in Cosmos DB.
      *
      * @return state snapshot (empty maps when Cosmos cannot be reached)
      */
@@ -48,17 +56,56 @@ public class CosmosStateRepository {
     }
 
     /**
-     * Upserts the supplied payload into the cosmos state container using the category as the partition key.
+     * Lazily reads a single document payload for the given category and id.
      */
-    public void upsert(FileCategory category, String id, Object payload) {
-        upsert(category, id, payload, null);
+    public <T> Optional<T> findPayload(FileCategory category, String id, Class<T> payloadType) {
+        if (!StringUtils.hasText(id)) {
+            return Optional.empty();
+        }
+        try {
+            StateDocument document = container.readItem(id, new PartitionKey(category.name()), StateDocument.class)
+                    .getItem();
+            return Optional.ofNullable(toPayload(document, payloadType));
+        } catch (CosmosException e) {
+            if (e.getStatusCode() == 404) {
+                return Optional.empty();
+            }
+            log.error("Failed to read state for {} id {}: {}", category, id, e.getMessage());
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Unexpected error reading state for {} id {}: {}", category, id, e.getMessage(), e);
+            return Optional.empty();
+        }
     }
 
     /**
-     * Upserts the supplied payload into the cosmos state container using the category as the partition key, recording
-     * the supplied scope when present.
+     * Returns the list of ids stored for the given category without fetching payloads.
      */
-    public void upsert(FileCategory category, String id, Object payload, String scope) {
+    public List<String> listKeys(FileCategory category) {
+        List<SqlParameter> parameters = new ArrayList<>();
+        parameters.add(new SqlParameter("@typeOfItem", category.name()));
+        SqlQuerySpec spec = new SqlQuerySpec("SELECT c.id FROM c WHERE c.typeOfItem = @typeOfItem", parameters);
+        try {
+            CosmosPagedIterable<StateDocument> documents = container.queryItems(spec,
+                    new CosmosQueryRequestOptions().setPartitionKey(new PartitionKey(category.name())),
+                    StateDocument.class);
+            return StreamSupport.stream(documents.spliterator(), false)
+                    .map(StateDocument::getId)
+                    .filter(StringUtils::hasText)
+                    .toList();
+        } catch (CosmosException e) {
+            log.error("Failed to list keys for category {}: {}", category, e.getMessage());
+            return List.of();
+        } catch (Exception e) {
+            log.error("Unexpected error listing keys for category {}: {}", category, e.getMessage(), e);
+            return List.of();
+        }
+    }
+
+    /**
+     * Upserts the supplied payload into the cosmos state container using the category as the partition key.
+     */
+    public void upsert(FileCategory category, String id, Object payload) {
         if (!StringUtils.hasText(id)) {
             log.warn("Cannot upsert {} with blank id", category);
             return;
@@ -67,9 +114,8 @@ public class CosmosStateRepository {
             StateDocument document = new StateDocument();
             document.setId(id);
             document.setTypeOfItem(category.name());
-            document.setScope(scope == null ? "" : scope);
             document.setData(objectMapper.valueToTree(payload));
-            container.upsertItem(document, new PartitionKey(category.name()), null);
+            container.upsertItem(document, new PartitionKey(category.name()), new CosmosItemRequestOptions());
         } catch (Exception e) {
             log.error("Failed to upsert state for {} id {}: {}", category, id, e.getMessage(), e);
         }

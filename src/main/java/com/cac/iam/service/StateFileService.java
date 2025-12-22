@@ -58,7 +58,7 @@ public class StateFileService {
         if (!StringUtils.hasText(payload.getCode())) {
             payload.setCode(key);
         }
-        stateRepository.upsert(FileCategory.POLICIES, key, payload, item.getScope());
+        stateRepository.upsert(FileCategory.POLICIES, key, payload);
     }
 
     private void applyRole(PlanItem item, String key) {
@@ -70,7 +70,7 @@ public class StateFileService {
         if (!StringUtils.hasText(payload.getCode())) {
             payload.setCode(key);
         }
-        stateRepository.upsert(FileCategory.ROLES, key, payload, item.getScope());
+        stateRepository.upsert(FileCategory.ROLES, key, payload);
     }
 
     private void applyUser(PlanItem item, String key) {
@@ -85,7 +85,7 @@ public class StateFileService {
         if (!StringUtils.hasText(payload.getEmailAddress())) {
             payload.setEmailAddress(key);
         }
-        stateRepository.upsert(FileCategory.USERS, key, payload, item.getScope());
+        stateRepository.upsert(FileCategory.USERS, key, payload);
     }
 
     private <T> T castPayload(PlanItem item, Class<T> type) {

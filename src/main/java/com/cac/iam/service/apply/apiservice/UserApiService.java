@@ -11,17 +11,17 @@ public class UserApiService implements PlanItemActionService<CreateUserRequest> 
     private static final Logger log = LoggerFactory.getLogger(UserApiService.class);
 
     @Override
-    public void create(String scope, String key, CreateUserRequest payload) {
-        log.info("Create user {} in scope {} with payload {}", key, scope, payload);
+    public void create(String key, CreateUserRequest payload) {
+        log.info("Create user {} with payload {}", key, payload);
     }
 
     @Override
-    public void update(String scope, String key, CreateUserRequest payload) {
-        log.info("Update user {} in scope {} with payload {}", key, scope, payload);
+    public void update(String key, CreateUserRequest payload) {
+        log.info("Update user {} with payload {}", key, payload);
     }
 
     @Override
-    public void delete(String scope, String key, CreateUserRequest payload) {
-        log.info("Delete user {} in scope {}", key, scope);
+    public void delete(String key, CreateUserRequest payload) {
+        log.info("Delete user {}", key);
     }
 }

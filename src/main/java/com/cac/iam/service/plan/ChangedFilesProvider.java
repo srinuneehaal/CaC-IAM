@@ -19,7 +19,6 @@ public class ChangedFilesProvider {
     /**
      * Creates a provider that reads from real environment variables.
      */
-    @Autowired
     public ChangedFilesProvider() {
         this(System::getenv);
     }

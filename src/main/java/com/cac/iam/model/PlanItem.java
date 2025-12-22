@@ -4,7 +4,6 @@ public class PlanItem {
 
     private Action action;
     private FileCategory fileCategory;
-    private String scope;
     private String key;
     private String sourcePath;
     private Object payload;
@@ -21,15 +20,13 @@ public class PlanItem {
      *
      * @param action      plan action to take
      * @param fileCategory file category for the payload
-     * @param scope       scope the item belongs to
      * @param key         logical key for the item
      * @param sourcePath  originating source path
      * @param payload     payload to apply
      */
-    public PlanItem(Action action, FileCategory fileCategory, String scope, String key, String sourcePath, Object payload) {
+    public PlanItem(Action action, FileCategory fileCategory, String key, String sourcePath, Object payload) {
         this.action = action;
         this.fileCategory = fileCategory;
-        this.scope = scope;
         this.key = key;
         this.sourcePath = sourcePath;
         this.payload = payload;
@@ -108,15 +105,6 @@ public class PlanItem {
     }
 
     /**
-     * Sets the scope the plan item applies to.
-     *
-     * @param scope scope value
-     */
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
-
-    /**
      * Returns the payload for the plan item.
      *
      * @return payload
@@ -151,15 +139,5 @@ public class PlanItem {
     public void setBeforePayload(Object beforePayload) {
         this.beforePayload = beforePayload;
     }
-
-    /**
-     * Returns the scope the plan item applies to.
-     *
-     * @return scope value
-     */
-    public String getScope() {
-        return scope;
-    }
-
 
 }

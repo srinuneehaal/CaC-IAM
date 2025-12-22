@@ -7,8 +7,8 @@ import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.PolicyUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Callable;
 
@@ -17,21 +17,21 @@ public class PolicyApiService implements PlanItemActionService<PolicyCreationReq
 
     private static final Logger log = LoggerFactory.getLogger(PolicyApiService.class);
 
-
     @Override
-    public void create(String scope, String key, PolicyCreationRequest payload) {
-        log.info("Create policy {} in scope {} with payload {}", key, scope, payload);
-    }
-
-    @Override
-    public void update(String scope, String key, PolicyCreationRequest payload) {
-        log.info("Update policy {} in scope {} with payload {}", key, scope, payload);
+    public void create(String key, PolicyCreationRequest payload) {
+        log.info("Create policy {} with payload {}", key, payload);
 
     }
 
     @Override
-    public void delete(String scope, String key, PolicyCreationRequest payload) {
-        log.info("Delete policy {} in scope {}", key, scope);
+    public void update(String key, PolicyCreationRequest payload) {
+
+        log.info("Update policy {} with payload {}", key, payload);
+    }
+
+    @Override
+    public void delete(String key, PolicyCreationRequest payload) {
+        log.info("Delete policy {}", key);
 
     }
 }

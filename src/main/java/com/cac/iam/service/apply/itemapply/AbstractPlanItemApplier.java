@@ -39,9 +39,9 @@ public abstract class AbstractPlanItemApplier<T> implements PlanItemApplier {
                 throw new InvalidPlanItemException("Plan item payload cannot be null for action " + action);
             }
             switch (action) {
-                case NEW -> apiService.create(item.getScope(), item.getKey(), payload);
-                case UPDATE -> apiService.update(item.getScope(), item.getKey(), payload);
-                case DELETE -> apiService.delete(item.getScope(), item.getKey(), payload);
+                case NEW -> apiService.create(item.getKey(), payload);
+                case UPDATE -> apiService.update(item.getKey(), payload);
+                case DELETE -> apiService.delete(item.getKey(), payload);
                 default -> throw new InvalidPlanItemException("Unsupported action " + action);
             }
         } catch (InvalidPlanItemException ex) {

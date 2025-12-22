@@ -1,6 +1,6 @@
 {
   "code": "full-access-role",
-  "description": "This is an example role to demonstrate their creation",
+  "description": "This is an example role to demonstrate their creation update",
   "resource": {
     "policyIdRoleResource": {
       "policies": [

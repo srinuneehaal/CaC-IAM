@@ -220,7 +220,7 @@
                 <option value="DELETE">Delete</option>
             </select>
             <label for="searchInput">Search</label>
-            <input id="searchInput" type="search" placeholder="Scope or key" />
+            <input id="searchInput" type="search" placeholder="Key search" />
             <button id="sortByAction" class="secondary">Sort by action</button>
         </div>
         <table>
@@ -228,7 +228,6 @@
             <tr>
                 <th>Action</th>
                 <th>Category</th>
-                <th>Scope</th>
                 <th>Key</th>
                 <th>Source path</th>
                 <th>Details</th>
@@ -258,14 +257,61 @@
 <script>
     const planData = {
   "items" : [ {
+    "action" : "NEW",
+    "fileCategory" : "POLICIES",
+    "key" : "allow-access-read-policy",
+    "sourcePath" : "changedfiles\\policies\\allow-access-read-policy.json",
+    "payload" : {
+      "code" : "allow-access-read-policy",
+      "description" : "Example policy demonstrating their creation update",
+      "applications" : [ "LUSID" ],
+      "grant" : "ALLOW",
+      "selectors" : [ {
+        "idSelectorDefinition" : {
+          "identifier" : {
+            "scope" : "official"
+          },
+          "actions" : [ {
+            "scope" : "default",
+            "activity" : "Read",
+            "entity" : "Portfolio"
+          }, {
+            "scope" : "default",
+            "activity" : "Aggregate",
+            "entity" : "Portfolio"
+          } ],
+          "name" : "access-official-scope",
+          "description" : "Allow readonly access to the 'official' scope"
+        }
+      } ],
+      "when" : {
+        "activate" : "2018-03-05T18:00:00.001Z",
+        "deactivate" : "2018-03-05T18:00:00.001Z"
+      },
+      "for" : [ {
+        "effectiveRange" : {
+          "from" : "2018-03-05T18:00:00.001Z",
+          "to" : "2018-03-05T18:00:00.001Z"
+        }
+      }, {
+        "asAtRangeForSpec" : {
+          "from" : {
+            "dateTimeOffset" : "2018-03-05T18:00:00.001Z"
+          },
+          "to" : {
+            "value" : "AsAt=Latest"
+          }
+        }
+      } ]
+    }
+  }, {
     "action" : "UPDATE",
     "fileCategory" : "POLICIES",
-    "scope" : "",
     "key" : "allow-access-full-policy",
     "sourcePath" : "changedfiles\\policies\\allow-access-full-policy.json",
     "payload" : {
       "code" : "allow-access-full-policy",
-      "description" : "Example policy demonstrating their creation update",
+      "description" : "Example policy demonstrating their creation",
       "applications" : [ "LUSID" ],
       "grant" : "ALLOW",
       "selectors" : [ {
@@ -308,7 +354,7 @@
     },
     "beforePayload" : {
       "code" : "allow-access-full-policy",
-      "description" : "Example policy demonstrating their creation",
+      "description" : "Example policy demonstrating their creation update",
       "applications" : [ "LUSID" ],
       "grant" : "ALLOW",
       "selectors" : [ {
@@ -348,6 +394,108 @@
           }
         }
       } ]
+    }
+  }, {
+    "action" : "NEW",
+    "fileCategory" : "ROLES",
+    "key" : "full-access-role",
+    "sourcePath" : "changedfiles\\roles\\full-access-role.json",
+    "payload" : {
+      "code" : "full-access-role",
+      "description" : "This is an example role to demonstrate their creation update",
+      "resource" : {
+        "policyIdRoleResource" : {
+          "policies" : [ {
+            "scope" : "default",
+            "code" : "official-portfolios-read-only"
+          }, {
+            "scope" : "default",
+            "code" : "desk-portfolios"
+          } ],
+          "policyCollections" : [ {
+            "scope" : "default",
+            "code" : "CompanyEmployeeAccess"
+          } ]
+        }
+      },
+      "when" : {
+        "activate" : "2018-03-05T18:00:00.001Z",
+        "deactivate" : "2018-03-05T18:00:00.001Z"
+      }
+    }
+  }, {
+    "action" : "UPDATE",
+    "fileCategory" : "ROLES",
+    "key" : "read-only-role",
+    "sourcePath" : "changedfiles\\roles\\read-only-role.json",
+    "payload" : {
+      "code" : "read-only-role",
+      "description" : "This is an example role to demonstrate their creation",
+      "resource" : {
+        "policyIdRoleResource" : {
+          "policies" : [ {
+            "scope" : "default",
+            "code" : "official-portfolios-read-only"
+          }, {
+            "scope" : "default",
+            "code" : "desk-portfolios"
+          } ],
+          "policyCollections" : [ {
+            "scope" : "default",
+            "code" : "CompanyEmployeeAccess"
+          } ]
+        }
+      },
+      "when" : {
+        "activate" : "2018-03-05T18:00:00.001Z",
+        "deactivate" : "2018-03-05T18:00:00.001Z"
+      }
+    },
+    "beforePayload" : {
+      "code" : "read-only-role",
+      "description" : "This is an example role to demonstrate their creation update",
+      "resource" : {
+        "policyIdRoleResource" : {
+          "policies" : [ {
+            "scope" : "default",
+            "code" : "official-portfolios-read-only"
+          }, {
+            "scope" : "default",
+            "code" : "desk-portfolios"
+          } ],
+          "policyCollections" : [ {
+            "scope" : "default",
+            "code" : "CompanyEmployeeAccess"
+          } ]
+        }
+      },
+      "when" : {
+        "activate" : "2018-03-05T18:00:00.001Z",
+        "deactivate" : "2018-03-05T18:00:00.001Z"
+      }
+    }
+  }, {
+    "action" : "UPDATE",
+    "fileCategory" : "USERS",
+    "key" : "joe.bloggs@myco.com",
+    "sourcePath" : "changedfiles\\users\\joe.bloggs@myco.com.json",
+    "payload" : {
+      "firstName" : "Joe",
+      "lastName" : "Bloggs",
+      "emailAddress" : "joe.bloggs@myco.com",
+      "login" : "joe.bloggs@myco.com",
+      "alternativeUserIds" : { },
+      "type" : "Personal",
+      "userExpiry" : "2018-03-05T18:00:00.001Z"
+    },
+    "beforePayload" : {
+      "firstName" : "Joe",
+      "lastName" : "Bloggs P",
+      "emailAddress" : "joe.bloggs@myco.com",
+      "login" : "joe.bloggs@myco.com",
+      "alternativeUserIds" : { },
+      "type" : "Personal",
+      "userExpiry" : "2018-03-05T18:00:00.001Z"
     }
   } ]
 };
@@ -472,7 +620,6 @@
         row.innerHTML = `
             <td><span class="badge ${action}">${action}</span></td>
             <td>${item.fileCategory || 'Unknown'}</td>
-            <td>${item.scope || ''}</td>
             <td>${item.key || ''}</td>
             <td>${item.sourcePath || ''}</td>
             <td></td>
@@ -556,8 +703,7 @@
         const filtered = items.filter(item => {
             const matchesAction = action ? item.action === action : true;
             const matchesCategory = category ? item.fileCategory === category : true;
-            const matchesSearch = !search || `${item.scope || ''}`.toLowerCase().includes(search)
-                || `${item.key || ''}`.toLowerCase().includes(search);
+            const matchesSearch = !search || `${item.key || ''}`.toLowerCase().includes(search);
             return matchesAction && matchesCategory && matchesSearch;
         });
         renderTable(filtered);

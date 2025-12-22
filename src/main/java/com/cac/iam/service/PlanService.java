@@ -8,7 +8,6 @@ import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.LoadedFile;
 import com.cac.iam.model.MasterPlan;
 import com.cac.iam.model.PlanItem;
-import com.cac.iam.model.StateSnapshot;
 import com.cac.iam.repository.CosmosStateRepository;
 import com.cac.iam.service.plan.rules.PlanOrderingRuleEngine;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategy;
@@ -54,12 +53,10 @@ public class PlanService {
      */
     public MasterPlan buildPlan(List<Path> changedPaths) {
         Map<FileCategory, Map<String, LoadedFile>> changedFiles = loadChangedFiles(changedPaths);
-        StateSnapshot stateSnapshot = stateRepository.loadSnapshot();
-
         MasterPlan plan = new MasterPlan();
-        processCategory(FileCategory.POLICIES, changedFiles.get(FileCategory.POLICIES), stateSnapshot.getPolicies(), plan);
-        processCategory(FileCategory.ROLES, changedFiles.get(FileCategory.ROLES), stateSnapshot.getRoles(), plan);
-        processCategory(FileCategory.USERS, changedFiles.get(FileCategory.USERS), stateSnapshot.getUsers(), plan);
+        processCategory(FileCategory.POLICIES, changedFiles.get(FileCategory.POLICIES), plan);
+        processCategory(FileCategory.ROLES, changedFiles.get(FileCategory.ROLES), plan);
+        processCategory(FileCategory.USERS, changedFiles.get(FileCategory.USERS), plan);
 
         return orderingRuleEngine.applyOrdering(plan);
     }
@@ -90,28 +87,29 @@ public class PlanService {
 
     private void processCategory(FileCategory category,
                                  Map<String, LoadedFile> changed,
-                                 Map<String, ?> state,
                                  MasterPlan plan) {
         Map<String, LoadedFile> changedMap = changed == null ? Map.of() : changed;
-        Map<String, ?> stateMap = state == null ? Map.of() : state;
 
+        // Add NEW/UPDATE items by lazily fetching existing state per key
         for (LoadedFile file : changedMap.values()) {
-            Object statePayload = stateMap.get(file.getKey());
+            Object statePayload = loadStatePayload(category, file.getKey());
             if (statePayload == null) {
-                plan.addItem(new PlanItem(Action.NEW, category, "", file.getKey(),
+                plan.addItem(new PlanItem(Action.NEW, category, file.getKey(),
                         file.getPath().toString(), file.getPayload()));
             } else if (!payloadsEqual(file.getPayload(), statePayload)) {
-                PlanItem update = new PlanItem(Action.UPDATE, category, "", file.getKey(),
+                PlanItem update = new PlanItem(Action.UPDATE, category, file.getKey(),
                         file.getPath().toString(), file.getPayload());
                 update.setBeforePayload(statePayload);
                 plan.addItem(update);
             }
         }
 
-        for (Map.Entry<String, ?> entry : stateMap.entrySet()) {
-            if (!changedMap.containsKey(entry.getKey())) {
-                plan.addItem(new PlanItem(Action.DELETE, category, "", entry.getKey(),
-                        cosmosStateReference(category, entry.getKey()), entry.getValue()));
+        // Add DELETE items by listing keys then lazily pulling payloads only when needed
+        for (String existingKey : stateRepository.listKeys(category)) {
+            if (!changedMap.containsKey(existingKey)) {
+                Object existingPayload = loadStatePayload(category, existingKey);
+                plan.addItem(new PlanItem(Action.DELETE, category, existingKey,
+                        cosmosStateReference(category, existingKey), existingPayload));
             }
         }
     }
@@ -128,6 +126,15 @@ public class PlanService {
         } catch (IllegalArgumentException e) {
             throw new PlanProcessingException("Failed to compare payloads: " + e.getMessage(), e);
         }
+    }
+
+    private Object loadStatePayload(FileCategory category, String key) {
+        Class<?> payloadType = switch (category) {
+            case POLICIES -> com.finbourne.access.model.PolicyCreationRequest.class;
+            case ROLES -> com.finbourne.access.model.RoleCreationRequest.class;
+            case USERS -> com.finbourne.identity.model.CreateUserRequest.class;
+        };
+        return stateRepository.findPayload(category, key, payloadType).orElse(null);
     }
 
     private String cosmosStateReference(FileCategory category, String key) {
