@@ -31,13 +31,19 @@ public class PolicyApiService implements PlanItemActionService<PolicyCreationReq
 
     @Override
     public void create(String key, PolicyCreationRequest payload) {
-        execute(() -> policiesApi.createPolicy(payload).execute(), "create policy", key);
+        execute(() -> {
+            policiesApi.createPolicy(payload).execute();
+            return null;
+        }, "create policy", key);
     }
 
     @Override
     public void update(String key, PolicyCreationRequest payload) {
         PolicyUpdateRequest updateRequest = objectMapper.convertValue(payload, PolicyUpdateRequest.class);
-        execute(() -> policiesApi.updatePolicy(key, updateRequest).execute(), "update policy", key);
+        execute(() -> {
+            policiesApi.updatePolicy(key, updateRequest).execute();
+            return null;
+        }, "update policy", key);
     }
 
     @Override
@@ -48,10 +54,10 @@ public class PolicyApiService implements PlanItemActionService<PolicyCreationReq
         }, "delete policy", key);
     }
 
-    private void execute(Callable<?> action, String verb, String key) {
+    void execute(Callable<?> action, String verb, String key) {
         try {
-           // action.call();
             log.info("{} {}", verb, key);
+           // action.call();
 //        } catch (ApiException e) {
 //            throw new RuntimeException("Access API failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
         } catch (Exception e) {

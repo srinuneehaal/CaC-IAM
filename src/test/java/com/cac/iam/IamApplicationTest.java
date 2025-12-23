@@ -1,0 +1,22 @@
+package com.cac.iam;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockStatic;
+
+class IamApplicationTest {
+
+    @Test
+    void mainStartsSpringApplication() {
+        try (var app = mockStatic(SpringApplication.class)) {
+            app.when(() -> SpringApplication.run(IamApplication.class, new String[]{})).thenReturn(null);
+
+            IamApplication.main(new String[]{});
+
+            app.verify(() -> SpringApplication.run(IamApplication.class, new String[]{}));
+        }
+    }
+}

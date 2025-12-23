@@ -12,7 +12,7 @@ public class CosmosStateConfiguration {
 
     @Bean(destroyMethod = "close")
     public CosmosClient cosmosClient(CosmosStateProperties properties) {
-        return new CosmosClientBuilder()
+        return cosmosClientBuilder()
                 .endpoint(properties.getUri())
                 .key(properties.getKey())
                 .consistencyLevel(ConsistencyLevel.EVENTUAL)
@@ -24,5 +24,9 @@ public class CosmosStateConfiguration {
     public CosmosContainer stateContainer(CosmosClient client, CosmosStateProperties properties) {
         CosmosDatabase database = client.getDatabase(properties.getDatabase());
         return database.getContainer(properties.getContainer());
+    }
+
+    CosmosClientBuilder cosmosClientBuilder() {
+        return new CosmosClientBuilder();
     }
 }

@@ -31,13 +31,22 @@ public class RoleApiService implements PlanItemActionService<RoleCreationRequest
 
     @Override
     public void create(String key, RoleCreationRequest payload) {
-        execute(() -> rolesApi.createRole(payload).execute(), "create role", key);
+        execute(() -> {
+            rolesApi.createRole(payload).execute();
+            return null;
+        }, "create role", key);
     }
 
     @Override
     public void update(String key, RoleCreationRequest payload) {
-        RoleUpdateRequest updateRequest = objectMapper.convertValue(payload, RoleUpdateRequest.class);
-        execute(() -> rolesApi.updateRole(key, updateRequest).execute(), "update role", key);
+        RoleUpdateRequest updateRequest = new RoleUpdateRequest()
+                .description(payload.getDescription())
+                .resource(payload.getResource())
+                .when(payload.getWhen());
+        execute(() -> {
+            rolesApi.updateRole(key, updateRequest).execute();
+            return null;
+        }, "update role", key);
     }
 
     @Override
@@ -48,10 +57,10 @@ public class RoleApiService implements PlanItemActionService<RoleCreationRequest
         }, "delete role", key);
     }
 
-    private void execute(Callable<?> action, String verb, String key) {
+    void execute(Callable<?> action, String verb, String key) {
         try {
-//            action.call();
             log.info("{} {}", verb, key);
+           // action.call();
 //        } catch (ApiException e) {
 //            throw new RuntimeException("Access API failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
         } catch (Exception e) {

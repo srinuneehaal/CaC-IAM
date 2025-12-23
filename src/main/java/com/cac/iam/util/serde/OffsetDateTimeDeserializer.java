@@ -17,8 +17,14 @@ public class OffsetDateTimeDeserializer extends JsonDeserializer<OffsetDateTime>
 
     @Override
     public OffsetDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        if (jsonParser.getCurrentToken() == com.fasterxml.jackson.core.JsonToken.VALUE_NULL) {
+            return null;
+        }
         String dateTimeString = jsonParser.getText();
         if (dateTimeString == null || dateTimeString.isBlank()) {
+            return null;
+        }
+        if ("null".equalsIgnoreCase(dateTimeString.trim())) {
             return null;
         }
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateTimeString, DATE_TIME_FORMATTER);
