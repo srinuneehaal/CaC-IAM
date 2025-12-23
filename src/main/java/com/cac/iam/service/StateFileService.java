@@ -4,7 +4,7 @@ import com.cac.iam.exception.PlanApplyException;
 import com.cac.iam.model.Action;
 import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.PlanItem;
-import com.cac.iam.repository.CosmosStateRepository;
+import com.cac.iam.repository.StateRepository;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.identity.model.CreateUserRequest;
@@ -18,10 +18,10 @@ public class StateFileService {
 
     private final Logger log;
 
-    private final CosmosStateRepository stateRepository;
+    private final StateRepository stateRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public StateFileService(CosmosStateRepository stateRepository, LoggerProvider loggerProvider) {
+    public StateFileService(StateRepository stateRepository, LoggerProvider loggerProvider) {
         this.stateRepository = stateRepository;
         this.log = loggerProvider.getLogger(getClass());
     }

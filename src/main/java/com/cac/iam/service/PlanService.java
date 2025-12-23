@@ -8,7 +8,7 @@ import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.LoadedFile;
 import com.cac.iam.model.MasterPlan;
 import com.cac.iam.model.PlanItem;
-import com.cac.iam.repository.CosmosStateRepository;
+import com.cac.iam.repository.StateRepository;
 import com.cac.iam.service.plan.rules.PlanOrderingRuleEngine;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategy;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategyFactory;
@@ -32,13 +32,13 @@ public class PlanService {
 
     private final FileParsingStrategyFactory strategyFactory;
     private final PlanOrderingRuleEngine orderingRuleEngine;
-    private final CosmosStateRepository stateRepository;
+    private final StateRepository stateRepository;
     private final ObjectMapper objectMapper;
 
     @org.springframework.beans.factory.annotation.Autowired
     public PlanService(FileParsingStrategyFactory strategyFactory,
                        PlanOrderingRuleEngine orderingRuleEngine,
-                       CosmosStateRepository stateRepository,
+                       StateRepository stateRepository,
                        ObjectMapper objectMapper,
                        LoggerProvider loggerProvider) {
         this.strategyFactory = strategyFactory;

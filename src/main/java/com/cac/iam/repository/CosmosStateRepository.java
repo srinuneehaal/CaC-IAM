@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Repository
-public class CosmosStateRepository {
+public class CosmosStateRepository implements StateRepository {
 
     private final Logger log;
     private final CosmosContainer container;
@@ -47,6 +47,7 @@ public class CosmosStateRepository {
      *
      * @return state snapshot (empty maps when Cosmos cannot be reached)
      */
+    @Override
     public StateSnapshot loadSnapshot() {
         Map<String, PolicyCreationRequest> policies =
                 loadByCategory(FileCategory.POLICIES, PolicyCreationRequest.class);
@@ -59,6 +60,7 @@ public class CosmosStateRepository {
     /**
      * Lazily reads a single document payload for the given category and id.
      */
+    @Override
     public <T> Optional<T> findPayload(FileCategory category, String id, Class<T> payloadType) {
         if (!StringUtils.hasText(id)) {
             return Optional.empty();
@@ -82,6 +84,7 @@ public class CosmosStateRepository {
     /**
      * Returns the list of ids stored for the given category without fetching payloads.
      */
+    @Override
     public List<String> listKeys(FileCategory category) {
         List<SqlParameter> parameters = new ArrayList<>();
         parameters.add(new SqlParameter("@typeOfItem", category.name()));
@@ -106,6 +109,7 @@ public class CosmosStateRepository {
     /**
      * Upserts the supplied payload into the cosmos state container using the category as the partition key.
      */
+    @Override
     public void upsert(FileCategory category, String id, Object payload) {
         if (!StringUtils.hasText(id)) {
             log.warn("Cannot upsert {} with blank id", category);
@@ -122,6 +126,7 @@ public class CosmosStateRepository {
         }
     }
 
+    @Override
     public void delete(FileCategory category, String id) {
         if (!StringUtils.hasText(id)) {
             log.warn("Cannot delete {} with blank id", category);

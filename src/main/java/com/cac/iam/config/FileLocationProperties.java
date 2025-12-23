@@ -1,7 +1,9 @@
 package com.cac.iam.config;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -12,10 +14,14 @@ import java.util.Objects;
  */
 @Component
 @ConfigurationProperties(prefix = "cacex.paths")
+@Validated
 public class FileLocationProperties {
 
+    @NotBlank
     private String changedFilesDir ;
+    @NotBlank
     private String planDir;
+    @NotBlank
     private String masterPlanFile;
     private String policiesDirName = "policies";
     private String rolesDirName = "roles";

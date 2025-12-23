@@ -1,21 +1,29 @@
 package com.cac.iam.config;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Configuration properties for Cosmos DB state persistence.
  */
 @ConfigurationProperties(prefix = "azure.cosmos")
+@Validated
 public class CosmosStateProperties {
 
+    @NotBlank
     private String uri;
 
+    @NotBlank
     private String key;
 
+    @NotBlank
     private String database;
 
+    @NotBlank
     private String container;
 
+    @NotBlank
     private String partitionKey = "/typeOfItem";
 
     public String getUri() {

@@ -257,12 +257,12 @@
 <script>
     const planData = {
   "items" : [ {
-    "action" : "NEW",
+    "action" : "UPDATE",
     "fileCategory" : "POLICIES",
-    "key" : "allow-access-read-policy",
-    "sourcePath" : "changedfiles\\policies\\allow-access-read-policy.json",
+    "key" : "allow-access-full-policy",
+    "sourcePath" : "changedfiles\\policies\\allow-access-full-policy.json",
     "payload" : {
-      "code" : "allow-access-read-policy",
+      "code" : "allow-access-full-policy",
       "description" : "Example policy demonstrating their creation update",
       "applications" : [ "LUSID" ],
       "grant" : "ALLOW",
@@ -303,13 +303,8 @@
           }
         }
       } ]
-    }
-  }, {
-    "action" : "NEW",
-    "fileCategory" : "POLICIES",
-    "key" : "allow-access-full-policy",
-    "sourcePath" : "changedfiles\\policies\\allow-access-full-policy.json",
-    "payload" : {
+    },
+    "beforePayload" : {
       "code" : "allow-access-full-policy",
       "description" : "Example policy demonstrating their creation",
       "applications" : [ "LUSID" ],
@@ -351,90 +346,6 @@
           }
         }
       } ]
-    }
-  }, {
-    "action" : "NEW",
-    "fileCategory" : "ROLES",
-    "key" : "read-only-role",
-    "sourcePath" : "changedfiles\\roles\\read-only-role.json",
-    "payload" : {
-      "code" : "read-only-role",
-      "description" : "This is an example role to demonstrate their creation",
-      "resource" : {
-        "policyIdRoleResource" : {
-          "policies" : [ {
-            "scope" : "default",
-            "code" : "official-portfolios-read-only"
-          }, {
-            "scope" : "default",
-            "code" : "desk-portfolios"
-          } ],
-          "policyCollections" : [ {
-            "scope" : "default",
-            "code" : "CompanyEmployeeAccess"
-          } ]
-        }
-      },
-      "when" : {
-        "activate" : "2018-03-05T18:00:00.001Z",
-        "deactivate" : "2018-03-05T18:00:00.001Z"
-      }
-    }
-  }, {
-    "action" : "NEW",
-    "fileCategory" : "ROLES",
-    "key" : "full-access-role",
-    "sourcePath" : "changedfiles\\roles\\full-access-role.json",
-    "payload" : {
-      "code" : "full-access-role",
-      "description" : "This is an example role to demonstrate their creation update",
-      "resource" : {
-        "policyIdRoleResource" : {
-          "policies" : [ {
-            "scope" : "default",
-            "code" : "official-portfolios-read-only"
-          }, {
-            "scope" : "default",
-            "code" : "desk-portfolios"
-          } ],
-          "policyCollections" : [ {
-            "scope" : "default",
-            "code" : "CompanyEmployeeAccess"
-          } ]
-        }
-      },
-      "when" : {
-        "activate" : "2018-03-05T18:00:00.001Z",
-        "deactivate" : "2018-03-05T18:00:00.001Z"
-      }
-    }
-  }, {
-    "action" : "NEW",
-    "fileCategory" : "USERS",
-    "key" : "srinivas.palli1@myco.com",
-    "sourcePath" : "changedfiles\\users\\srinivas.palli1@myco.com.json",
-    "payload" : {
-      "firstName" : "Joe",
-      "lastName" : "Bloggs",
-      "emailAddress" : "srinivas.palli1@myco.com",
-      "login" : "srinivas.palli1@myco.com",
-      "alternativeUserIds" : { },
-      "type" : "Personal",
-      "userExpiry" : "2018-03-05T18:00:00.001Z"
-    }
-  }, {
-    "action" : "NEW",
-    "fileCategory" : "USERS",
-    "key" : "joe.bloggs@myco.com",
-    "sourcePath" : "changedfiles\\users\\joe.bloggs@myco.com.json",
-    "payload" : {
-      "firstName" : "Joe",
-      "lastName" : "Bloggs",
-      "emailAddress" : "joe.bloggs@myco.com",
-      "login" : "joe.bloggs@myco.com",
-      "alternativeUserIds" : { },
-      "type" : "Personal",
-      "userExpiry" : "2018-03-05T18:00:00.001Z"
     }
   } ]
 };
