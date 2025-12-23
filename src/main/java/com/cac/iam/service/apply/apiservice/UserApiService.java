@@ -1,14 +1,19 @@
 package com.cac.iam.service.apply.apiservice;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import com.cac.iam.util.LoggerProvider;
 import com.finbourne.identity.model.CreateUserRequest;
+import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserApiService implements PlanItemActionService<CreateUserRequest> {
 
-    private static final Logger log = LoggerFactory.getLogger(UserApiService.class);
+    private final Logger log;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public UserApiService(LoggerProvider loggerProvider) {
+        this.log = loggerProvider.getLogger(getClass());
+    }
 
     @Override
     public void create(String key, CreateUserRequest payload) {

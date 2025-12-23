@@ -7,8 +7,8 @@ import com.cac.iam.service.plan.ChangedFilesProvider;
 import com.cac.iam.service.plan.MasterPlanHtmlReportGenerator;
 import com.cac.iam.service.plan.PlanWriter;
 import com.cac.iam.util.CommandLineFlags;
+import com.cac.iam.util.LoggerProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
 @Component
 public class PlanRunner implements CommandLineRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(PlanRunner.class);
+    private final Logger log;
     private static final String ARG_PLAN = "--plan";
     static final String ENV_MASTER_PLAN_REPORT_ENABLED = "MASTER_PLAN_REPORT_ENABLED";
 
@@ -37,14 +37,17 @@ public class PlanRunner implements CommandLineRunner {
      * @param planWriter           writer for output plans
      * @param masterPlanHtmlReportGenerator report generator that creates `masterplan.html`
      */
+    @org.springframework.beans.factory.annotation.Autowired
     public PlanRunner(ChangedFilesProvider changedFilesProvider,
                       PlanService planService,
                       PlanWriter planWriter,
-                      MasterPlanHtmlReportGenerator masterPlanHtmlReportGenerator) {
+                      MasterPlanHtmlReportGenerator masterPlanHtmlReportGenerator,
+                      LoggerProvider loggerProvider) {
         this.changedFilesProvider = changedFilesProvider;
         this.planService = planService;
         this.planWriter = planWriter;
         this.masterPlanHtmlReportGenerator = masterPlanHtmlReportGenerator;
+        this.log = loggerProvider.getLogger(getClass());
     }
 
     /**

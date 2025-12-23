@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.identity.model.CreateUserRequest;
+import com.cac.iam.util.LoggerProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -31,14 +31,15 @@ import java.util.stream.StreamSupport;
 @Repository
 public class CosmosStateRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(CosmosStateRepository.class);
-
+    private final Logger log;
     private final CosmosContainer container;
     private final ObjectMapper objectMapper;
 
-    public CosmosStateRepository(CosmosContainer container, ObjectMapper objectMapper) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public CosmosStateRepository(CosmosContainer container, ObjectMapper objectMapper, LoggerProvider loggerProvider) {
         this.container = container;
         this.objectMapper = objectMapper;
+        this.log = loggerProvider.getLogger(getClass());
     }
 
     /**

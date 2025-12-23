@@ -1,13 +1,12 @@
 package com.cac.iam.service.apply.apiservice;
 
+import com.cac.iam.util.LoggerProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finbourne.access.ApiException;
 import com.finbourne.access.api.RolesApi;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.access.model.RoleUpdateRequest;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Callable;
@@ -15,24 +14,48 @@ import java.util.concurrent.Callable;
 @Service
 public class RoleApiService implements PlanItemActionService<RoleCreationRequest> {
 
-    private static final Logger log = LoggerFactory.getLogger(RoleApiService.class);
+    private final Logger log;
+    private final RolesApi rolesApi;
+    private final ObjectMapper objectMapper;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    public RoleApiService(LoggerProvider loggerProvider, ObjectMapper objectMapper) {
+        this(loggerProvider, new RolesApi(), objectMapper);
+    }
+
+    RoleApiService(LoggerProvider loggerProvider, RolesApi rolesApi, ObjectMapper objectMapper) {
+        this.log = loggerProvider.getLogger(getClass());
+        this.rolesApi = rolesApi;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void create(String key, RoleCreationRequest payload) {
-
-        log.info("Create role {} with payload {}", key, payload);
+        execute(() -> rolesApi.createRole(payload).execute(), "create role", key);
     }
 
     @Override
     public void update(String key, RoleCreationRequest payload) {
-        log.info("Update role {} with payload {}", key, payload);
-
+        RoleUpdateRequest updateRequest = objectMapper.convertValue(payload, RoleUpdateRequest.class);
+        execute(() -> rolesApi.updateRole(key, updateRequest).execute(), "update role", key);
     }
 
     @Override
     public void delete(String key, RoleCreationRequest payload) {
-        log.info("Delete role {}", key);
+        execute(() -> {
+            rolesApi.deleteRole(key).execute();
+            return null;
+        }, "delete role", key);
+    }
 
+    private void execute(Callable<?> action, String verb, String key) {
+        try {
+//            action.call();
+            log.info("{} {}", verb, key);
+//        } catch (ApiException e) {
+//            throw new RuntimeException("Access API failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
+        }
     }
 }

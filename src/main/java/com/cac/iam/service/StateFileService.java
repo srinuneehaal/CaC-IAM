@@ -8,20 +8,22 @@ import com.cac.iam.repository.CosmosStateRepository;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.identity.model.CreateUserRequest;
+import com.cac.iam.util.LoggerProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
 public class StateFileService {
 
-    private static final Logger log = LoggerFactory.getLogger(StateFileService.class);
+    private final Logger log;
 
     private final CosmosStateRepository stateRepository;
 
-    public StateFileService(CosmosStateRepository stateRepository) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public StateFileService(CosmosStateRepository stateRepository, LoggerProvider loggerProvider) {
         this.stateRepository = stateRepository;
+        this.log = loggerProvider.getLogger(getClass());
     }
 
     /**

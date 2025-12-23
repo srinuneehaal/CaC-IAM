@@ -305,7 +305,7 @@
       } ]
     }
   }, {
-    "action" : "UPDATE",
+    "action" : "NEW",
     "fileCategory" : "POLICIES",
     "key" : "allow-access-full-policy",
     "sourcePath" : "changedfiles\\policies\\allow-access-full-policy.json",
@@ -351,49 +351,34 @@
           }
         }
       } ]
-    },
-    "beforePayload" : {
-      "code" : "allow-access-full-policy",
-      "description" : "Example policy demonstrating their creation update",
-      "applications" : [ "LUSID" ],
-      "grant" : "ALLOW",
-      "selectors" : [ {
-        "idSelectorDefinition" : {
-          "identifier" : {
-            "scope" : "official"
-          },
-          "actions" : [ {
+    }
+  }, {
+    "action" : "NEW",
+    "fileCategory" : "ROLES",
+    "key" : "read-only-role",
+    "sourcePath" : "changedfiles\\roles\\read-only-role.json",
+    "payload" : {
+      "code" : "read-only-role",
+      "description" : "This is an example role to demonstrate their creation",
+      "resource" : {
+        "policyIdRoleResource" : {
+          "policies" : [ {
             "scope" : "default",
-            "activity" : "Read",
-            "entity" : "Portfolio"
+            "code" : "official-portfolios-read-only"
           }, {
             "scope" : "default",
-            "activity" : "Aggregate",
-            "entity" : "Portfolio"
+            "code" : "desk-portfolios"
           } ],
-          "name" : "access-official-scope",
-          "description" : "Allow readonly access to the 'official' scope"
+          "policyCollections" : [ {
+            "scope" : "default",
+            "code" : "CompanyEmployeeAccess"
+          } ]
         }
-      } ],
+      },
       "when" : {
         "activate" : "2018-03-05T18:00:00.001Z",
         "deactivate" : "2018-03-05T18:00:00.001Z"
-      },
-      "for" : [ {
-        "effectiveRange" : {
-          "from" : "2018-03-05T18:00:00.001Z",
-          "to" : "2018-03-05T18:00:00.001Z"
-        }
-      }, {
-        "asAtRangeForSpec" : {
-          "from" : {
-            "dateTimeOffset" : "2018-03-05T18:00:00.001Z"
-          },
-          "to" : {
-            "value" : "AsAt=Latest"
-          }
-        }
-      } ]
+      }
     }
   }, {
     "action" : "NEW",
@@ -424,73 +409,27 @@
       }
     }
   }, {
-    "action" : "UPDATE",
-    "fileCategory" : "ROLES",
-    "key" : "read-only-role",
-    "sourcePath" : "changedfiles\\roles\\read-only-role.json",
+    "action" : "NEW",
+    "fileCategory" : "USERS",
+    "key" : "srinivas.palli1@myco.com",
+    "sourcePath" : "changedfiles\\users\\srinivas.palli1@myco.com.json",
     "payload" : {
-      "code" : "read-only-role",
-      "description" : "This is an example role to demonstrate their creation",
-      "resource" : {
-        "policyIdRoleResource" : {
-          "policies" : [ {
-            "scope" : "default",
-            "code" : "official-portfolios-read-only"
-          }, {
-            "scope" : "default",
-            "code" : "desk-portfolios"
-          } ],
-          "policyCollections" : [ {
-            "scope" : "default",
-            "code" : "CompanyEmployeeAccess"
-          } ]
-        }
-      },
-      "when" : {
-        "activate" : "2018-03-05T18:00:00.001Z",
-        "deactivate" : "2018-03-05T18:00:00.001Z"
-      }
-    },
-    "beforePayload" : {
-      "code" : "read-only-role",
-      "description" : "This is an example role to demonstrate their creation update",
-      "resource" : {
-        "policyIdRoleResource" : {
-          "policies" : [ {
-            "scope" : "default",
-            "code" : "official-portfolios-read-only"
-          }, {
-            "scope" : "default",
-            "code" : "desk-portfolios"
-          } ],
-          "policyCollections" : [ {
-            "scope" : "default",
-            "code" : "CompanyEmployeeAccess"
-          } ]
-        }
-      },
-      "when" : {
-        "activate" : "2018-03-05T18:00:00.001Z",
-        "deactivate" : "2018-03-05T18:00:00.001Z"
-      }
+      "firstName" : "Joe",
+      "lastName" : "Bloggs",
+      "emailAddress" : "srinivas.palli1@myco.com",
+      "login" : "srinivas.palli1@myco.com",
+      "alternativeUserIds" : { },
+      "type" : "Personal",
+      "userExpiry" : "2018-03-05T18:00:00.001Z"
     }
   }, {
-    "action" : "UPDATE",
+    "action" : "NEW",
     "fileCategory" : "USERS",
     "key" : "joe.bloggs@myco.com",
     "sourcePath" : "changedfiles\\users\\joe.bloggs@myco.com.json",
     "payload" : {
       "firstName" : "Joe",
       "lastName" : "Bloggs",
-      "emailAddress" : "joe.bloggs@myco.com",
-      "login" : "joe.bloggs@myco.com",
-      "alternativeUserIds" : { },
-      "type" : "Personal",
-      "userExpiry" : "2018-03-05T18:00:00.001Z"
-    },
-    "beforePayload" : {
-      "firstName" : "Joe",
-      "lastName" : "Bloggs P",
       "emailAddress" : "joe.bloggs@myco.com",
       "login" : "joe.bloggs@myco.com",
       "alternativeUserIds" : { },

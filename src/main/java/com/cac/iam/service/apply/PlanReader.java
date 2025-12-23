@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.identity.model.CreateUserRequest;
+import com.cac.iam.util.LoggerProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,14 +20,16 @@ import java.nio.file.Path;
 @Component
 public class PlanReader {
 
-    private static final Logger log = LoggerFactory.getLogger(PlanReader.class);
+    private final Logger log;
 
     private final FileLocationProperties fileLocationProperties;
     private final ObjectMapper objectMapper;
 
-    public PlanReader(FileLocationProperties fileLocationProperties, ObjectMapper objectMapper) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public PlanReader(FileLocationProperties fileLocationProperties, ObjectMapper objectMapper, LoggerProvider loggerProvider) {
         this.fileLocationProperties = fileLocationProperties;
         this.objectMapper = objectMapper;
+        this.log = loggerProvider.getLogger(getClass());
     }
 
     /**

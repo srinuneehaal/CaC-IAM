@@ -12,9 +12,9 @@ import com.cac.iam.repository.CosmosStateRepository;
 import com.cac.iam.service.plan.rules.PlanOrderingRuleEngine;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategy;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategyFactory;
+import com.cac.iam.util.LoggerProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -28,21 +28,24 @@ import java.util.Objects;
 @Service
 public class PlanService {
 
-    private static final Logger log = LoggerFactory.getLogger(PlanService.class);
+    private final Logger log;
 
     private final FileParsingStrategyFactory strategyFactory;
     private final PlanOrderingRuleEngine orderingRuleEngine;
     private final CosmosStateRepository stateRepository;
     private final ObjectMapper objectMapper;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public PlanService(FileParsingStrategyFactory strategyFactory,
                        PlanOrderingRuleEngine orderingRuleEngine,
                        CosmosStateRepository stateRepository,
-                       ObjectMapper objectMapper) {
+                       ObjectMapper objectMapper,
+                       LoggerProvider loggerProvider) {
         this.strategyFactory = strategyFactory;
         this.orderingRuleEngine = orderingRuleEngine;
         this.stateRepository = stateRepository;
         this.objectMapper = objectMapper;
+        this.log = loggerProvider.getLogger(getClass());
     }
 
     /**

@@ -7,8 +7,8 @@ import com.cac.iam.model.MasterPlan;
 import com.cac.iam.model.PlanItem;
 import com.cac.iam.service.apply.PlanReader;
 import com.cac.iam.service.apply.itemapply.PlanItemApplier;
+import com.cac.iam.util.LoggerProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 public class PlanApplyService {
 
-    private static final Logger log = LoggerFactory.getLogger(PlanApplyService.class);
+    private final Logger log;
 
     private final PlanReader planReader;
     private final Map<FileCategory, PlanItemApplier> appliers;
@@ -32,14 +32,17 @@ public class PlanApplyService {
      * @param stateFileService   state file updater
      * @param discoveredAppliers appliers keyed by category
      */
+    @org.springframework.beans.factory.annotation.Autowired
     public PlanApplyService(PlanReader planReader,
                             StateFileService stateFileService,
-                            List<PlanItemApplier> discoveredAppliers) {
+                            List<PlanItemApplier> discoveredAppliers,
+                            LoggerProvider loggerProvider) {
         this.planReader = planReader;
         this.stateFileService = stateFileService;
         this.appliers = discoveredAppliers.stream()
                 .collect(Collectors.toMap(PlanItemApplier::supportedCategory, applier -> applier,
                         (a, b) -> a, () -> new EnumMap<>(FileCategory.class)));
+        this.log = loggerProvider.getLogger(getClass());
     }
 
     /**
@@ -53,16 +56,34 @@ public class PlanApplyService {
         }
         log.info("Applying {} plan item(s) from master plan", masterPlan.getItems().size());
         for (PlanItem item : masterPlan.getItems()) {
+            PlanItemApplier applier;
             try {
-                PlanItemApplier applier = resolveApplier(item.getFileCategory());
-                applier.apply(item);
-                stateFileService.applyStateChange(item);
+                applier = resolveApplier(item.getFileCategory());
             } catch (MissingApplierException e) {
                 log.error("Skipping item {}: {}", item.getKey(), e.getMessage());
+                continue;
+            }
+
+            boolean apiApplied = false;
+            try {
+                applier.apply(item);
+                apiApplied = true;
             } catch (PlanApplyException e) {
                 log.error("Failed to apply item {}: {}", item.getKey(), e.getMessage(), e);
             } catch (Exception e) {
                 log.error("Unexpected error applying item {}: {}", item.getKey(), e.getMessage(), e);
+            }
+
+            if (!apiApplied) {
+                continue;
+            }
+
+            try {
+                stateFileService.applyStateChange(item);
+            } catch (PlanApplyException e) {
+                log.error("State update failed for item {} after successful apply: {}", item.getKey(), e.getMessage(), e);
+            } catch (Exception e) {
+                log.error("Unexpected state update error for item {} after successful apply: {}", item.getKey(), e.getMessage(), e);
             }
         }
     }
