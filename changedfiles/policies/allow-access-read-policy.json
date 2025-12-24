@@ -1,6 +1,6 @@
 {
   "code": "allow-access-read-policy",
-  "description": "Example policy demonstrating their creation update",
+  "description": " Example policy demonstrating their creation and update to allow read access to portfolios in the 'official' scope",
   "applications": [
     "LUSID"
   ],

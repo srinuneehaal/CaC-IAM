@@ -1,0 +1,82 @@
+{
+  "groups": [
+    {
+      "name": "azure.cosmos",
+      "type": "com.cac.iam.config.CosmosStateProperties",
+      "sourceType": "com.cac.iam.config.CosmosStateProperties"
+    },
+    {
+      "name": "cacex.paths",
+      "type": "com.cac.iam.config.FileLocationProperties",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "plan.ordering",
+      "type": "com.cac.iam.service.plan.rules.PlanOrderingProperties",
+      "sourceType": "com.cac.iam.service.plan.rules.PlanOrderingProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "azure.cosmos.container",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.CosmosStateProperties"
+    },
+    {
+      "name": "azure.cosmos.database",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.CosmosStateProperties"
+    },
+    {
+      "name": "azure.cosmos.key",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.CosmosStateProperties"
+    },
+    {
+      "name": "azure.cosmos.partition-key",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.CosmosStateProperties"
+    },
+    {
+      "name": "azure.cosmos.uri",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.CosmosStateProperties"
+    },
+    {
+      "name": "cacex.paths.changed-files-dir",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "cacex.paths.master-plan-file",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "cacex.paths.plan-dir",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "cacex.paths.policies-dir-name",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "cacex.paths.roles-dir-name",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "cacex.paths.users-dir-name",
+      "type": "java.lang.String",
+      "sourceType": "com.cac.iam.config.FileLocationProperties"
+    },
+    {
+      "name": "plan.ordering.rules",
+      "type": "java.util.List<com.cac.iam.service.plan.rules.PlanOrderingProperties$Rule>",
+      "sourceType": "com.cac.iam.service.plan.rules.PlanOrderingProperties"
+    }
+  ],
+  "hints": []
+}
