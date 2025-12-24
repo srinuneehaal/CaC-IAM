@@ -48,9 +48,12 @@ public class PlanService {
      * @return ordered master plan
      */
     public MasterPlan buildPlan(List<Path> changedPaths) {
+
         Map<FileCategory, Map<String, LoadedFile>> changedFiles = loadChangedFiles(changedPaths);
         Map<FileCategory, Set<String>> requestedDeletes = detectDeletes(changedPaths);
+
         MasterPlan plan = new MasterPlan();
+
         processCategory(FileCategory.POLICIES, changedFiles.get(FileCategory.POLICIES),
                 requestedDeletes.get(FileCategory.POLICIES), plan);
         processCategory(FileCategory.ROLES, changedFiles.get(FileCategory.ROLES),
@@ -96,9 +99,11 @@ public class PlanService {
         for (LoadedFile file : changedMap.values()) {
             Object statePayload = loadStatePayload(category, file.getKey());
             if (statePayload == null) {
+                log.info("Detected new {}/{}", category, file.getKey());
                 plan.addItem(new PlanItem(Action.NEW, category, file.getKey(),
                         file.getPath().toString(), file.getPayload()));
             } else if (!payloadsEqual(file.getPayload(), statePayload)) {
+                log.info("Detected update for {}/{}", category, file.getKey());
                 PlanItem update = new PlanItem(Action.UPDATE, category, file.getKey(),
                         file.getPath().toString(), file.getPayload());
                 update.setBeforePayload(statePayload);
@@ -108,6 +113,7 @@ public class PlanService {
 
         // Add DELETE items only when explicitly requested via changed files
         for (String deleteKey : deleteKeys) {
+            log.info("Detected delete for {}/{}", category, deleteKey);
             Object existingPayload = loadStatePayload(category, deleteKey);
             plan.addItem(new PlanItem(Action.DELETE, category, deleteKey,
                     cosmosStateReference(category, deleteKey), existingPayload));
