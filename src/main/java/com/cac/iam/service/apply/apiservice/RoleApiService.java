@@ -58,7 +58,7 @@ public class RoleApiService implements PlanItemActionService<RoleCreationRequest
 
     void execute(Callable<?> action, String verb, String key) {
         try {
-            log.info("{} {}", verb, key);
+            log.info("Role API execute the call with fbn {} {}", verb, key);
            // action.call();
 //        } catch (ApiException e) {
 //            throw new RuntimeException("Access API failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);

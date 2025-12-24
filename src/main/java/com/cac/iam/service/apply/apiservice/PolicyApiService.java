@@ -55,7 +55,7 @@ public class PolicyApiService implements PlanItemActionService<PolicyCreationReq
 
     void execute(Callable<?> action, String verb, String key) {
         try {
-            log.info("{} {}", verb, key);
+            log.info("Policy API execute the call with fbn {} {}", verb, key);
            // action.call();
 //        } catch (ApiException e) {
 //            throw new RuntimeException("Access API failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);

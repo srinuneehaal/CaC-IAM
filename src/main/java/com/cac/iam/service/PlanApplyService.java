@@ -80,6 +80,7 @@ public class PlanApplyService {
 
             try {
                 stateFileService.applyStateChange(item);
+                log.info("State updated for item {}", item.getKey());
             } catch (PlanApplyException e) {
                 log.error("State update failed for item {} after successful apply: {}", item.getKey(), e.getMessage(), e);
             } catch (Exception e) {

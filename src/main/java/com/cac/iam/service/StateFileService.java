@@ -64,6 +64,7 @@ public class StateFileService {
     }
 
     private void applyRole(PlanItem item, String key) {
+
         if (item.getAction() == Action.DELETE) {
             stateRepository.delete(FileCategory.ROLES, key);
             return;
