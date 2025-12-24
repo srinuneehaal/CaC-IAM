@@ -1,4 +1,4 @@
-name: CI & Release
+name: CI & Release Pipeline
 
 permissions:
   contents: write
