@@ -1,9 +1,0 @@
-{
-  "firstName": "Joe",
-  "lastName": "Bloggs",
-  "emailAddress": "joe.bloggs@myco.com",
-  "login": "joe.bloggs@myco.com",
-  "alternativeUserIds": {},
-  "type": "Personal",
-  "userExpiry": "2018-03-05T18:00:00.001Z"
-}

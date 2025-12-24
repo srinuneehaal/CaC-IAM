@@ -43,15 +43,14 @@ class PlanServiceTest {
         Path changed = Files.createTempFile(tempDir, "policy-", ".json");
         PolicyCreationRequest changedPayload = new PolicyCreationRequest().code("p1").description("new");
         LoadedFile loadedFile = new LoadedFile(FileCategory.POLICIES, "p1", changed, changedPayload);
+        Path toDelete = tempDir.resolve("stale.json");
 
         lenient().when(strategyFactory.resolve(org.mockito.ArgumentMatchers.<Path>any())).thenReturn(strategy);
         lenient().when(strategy.parse(any())).thenReturn(loadedFile);
+        when(strategy.getCategory()).thenReturn(FileCategory.POLICIES);
         PolicyCreationRequest existingPayload = new PolicyCreationRequest().code("p1").description("old");
         when(stateRepository.findPayload(FileCategory.POLICIES, "p1", PolicyCreationRequest.class))
                 .thenReturn(java.util.Optional.of(existingPayload));
-        when(stateRepository.listKeys(FileCategory.POLICIES)).thenReturn(List.of("stale"));
-        when(stateRepository.listKeys(FileCategory.ROLES)).thenReturn(List.of());
-        when(stateRepository.listKeys(FileCategory.USERS)).thenReturn(List.of());
         when(stateRepository.findPayload(FileCategory.POLICIES, "stale", PolicyCreationRequest.class))
                 .thenReturn(java.util.Optional.of(new PolicyCreationRequest().code("stale")));
         when(orderingRuleEngine.applyOrdering(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -59,7 +58,7 @@ class PlanServiceTest {
         planService = new PlanService(strategyFactory, orderingRuleEngine, stateRepository,
                 new ObjectMapper(), new LoggerProvider());
 
-        MasterPlan plan = planService.buildPlan(List.of(changed));
+        MasterPlan plan = planService.buildPlan(List.of(changed, toDelete));
 
         assertThat(plan.getItems()).hasSize(2);
         PlanItem update = plan.getItems().stream()
@@ -69,6 +68,7 @@ class PlanServiceTest {
 
         PlanItem delete = plan.getItems().stream()
                 .filter(i -> i.getAction() == Action.DELETE).findFirst().orElseThrow();
+        assertThat(delete.getKey()).isEqualTo("stale");
         assertThat(delete.getSourcePath()).contains("cosmos://POLICIES/");
     }
 
@@ -80,9 +80,6 @@ class PlanServiceTest {
 
         when(strategyFactory.resolve(org.mockito.ArgumentMatchers.<Path>any())).thenReturn(strategy);
         when(strategy.parse(any())).thenReturn(loadedFile);
-        when(stateRepository.listKeys(FileCategory.POLICIES)).thenReturn(List.of());
-        when(stateRepository.listKeys(FileCategory.ROLES)).thenReturn(List.of());
-        when(stateRepository.listKeys(FileCategory.USERS)).thenReturn(List.of());
         when(orderingRuleEngine.applyOrdering(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         planService = new PlanService(strategyFactory, orderingRuleEngine, stateRepository,
@@ -100,7 +97,7 @@ class PlanServiceTest {
     void buildPlanSkipsMissingPathsAndUnsupported(@TempDir Path tempDir) {
         Path missing = tempDir.resolve("missing.json");
         when(orderingRuleEngine.applyOrdering(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(stateRepository.listKeys(any())).thenReturn(List.of());
+        when(strategyFactory.resolve(missing)).thenThrow(new com.cac.iam.exception.UnsupportedFilePathException("bad"));
 
         planService = new PlanService(strategyFactory, orderingRuleEngine, stateRepository,
                 new ObjectMapper(), new LoggerProvider());
@@ -114,7 +111,6 @@ class PlanServiceTest {
     void buildPlanHandlesUnsupportedStrategy(@TempDir Path tempDir) throws IOException {
         Path path = Files.createTempFile(tempDir, "bad-", ".txt");
         when(orderingRuleEngine.applyOrdering(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(stateRepository.listKeys(any())).thenReturn(List.of());
         when(strategyFactory.resolve(org.mockito.ArgumentMatchers.<Path>any())).thenThrow(new com.cac.iam.exception.UnsupportedFilePathException("bad"));
 
         planService = new PlanService(strategyFactory, orderingRuleEngine, stateRepository,
@@ -131,7 +127,6 @@ class PlanServiceTest {
         LoadedFile loadedFile = new LoadedFile(FileCategory.POLICIES, "p1", changed, new PolicyCreationRequest());
         when(strategyFactory.resolve(org.mockito.ArgumentMatchers.<Path>any())).thenReturn(strategy);
         when(strategy.parse(any())).thenReturn(loadedFile);
-        lenient().when(stateRepository.listKeys(any())).thenReturn(List.of());
         lenient().when(stateRepository.findPayload(any(), any(), any())).thenReturn(java.util.Optional.of(new Object()));
         com.fasterxml.jackson.databind.ObjectMapper failingMapper = mock(com.fasterxml.jackson.databind.ObjectMapper.class);
         when(failingMapper.valueToTree(any())).thenThrow(new IllegalArgumentException("bad"));

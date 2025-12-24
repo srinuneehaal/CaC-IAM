@@ -9,6 +9,7 @@ import com.cac.iam.service.plan.rules.PlanOrderingRuleEngine;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategy;
 import com.cac.iam.service.plan.stratagy.FileParsingStrategyFactory;
 import com.cac.iam.util.LoggerProvider;
+import com.cac.iam.util.PathUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -48,10 +49,14 @@ public class PlanService {
      */
     public MasterPlan buildPlan(List<Path> changedPaths) {
         Map<FileCategory, Map<String, LoadedFile>> changedFiles = loadChangedFiles(changedPaths);
+        Map<FileCategory, Set<String>> requestedDeletes = detectDeletes(changedPaths);
         MasterPlan plan = new MasterPlan();
-        processCategory(FileCategory.POLICIES, changedFiles.get(FileCategory.POLICIES), plan);
-        processCategory(FileCategory.ROLES, changedFiles.get(FileCategory.ROLES), plan);
-        processCategory(FileCategory.USERS, changedFiles.get(FileCategory.USERS), plan);
+        processCategory(FileCategory.POLICIES, changedFiles.get(FileCategory.POLICIES),
+                requestedDeletes.get(FileCategory.POLICIES), plan);
+        processCategory(FileCategory.ROLES, changedFiles.get(FileCategory.ROLES),
+                requestedDeletes.get(FileCategory.ROLES), plan);
+        processCategory(FileCategory.USERS, changedFiles.get(FileCategory.USERS),
+                requestedDeletes.get(FileCategory.USERS), plan);
 
         return orderingRuleEngine.applyOrdering(plan);
     }
@@ -64,7 +69,7 @@ public class PlanService {
         for (Path path : changedPaths) {
             try {
                 if (path == null || !Files.exists(path)) {
-                    log.warn("Skipping missing changed file: {}", path);
+                    log.info("Changed file missing on disk, skipping parse (possible delete): {}", path);
                     continue;
                 }
                 FileParsingStrategy strategy = strategyFactory.resolve(path);
@@ -82,8 +87,10 @@ public class PlanService {
 
     private void processCategory(FileCategory category,
                                  Map<String, LoadedFile> changed,
+                                 Set<String> requestedDeletes,
                                  MasterPlan plan) {
         Map<String, LoadedFile> changedMap = changed == null ? Map.of() : changed;
+        Set<String> deleteKeys = requestedDeletes == null ? Set.of() : requestedDeletes;
 
         // Add NEW/UPDATE items by lazily fetching existing state per key
         for (LoadedFile file : changedMap.values()) {
@@ -99,14 +106,44 @@ public class PlanService {
             }
         }
 
-        // Add DELETE items by listing keys then lazily pulling payloads only when needed
-        for (String existingKey : stateRepository.listKeys(category)) {
-            if (!changedMap.containsKey(existingKey)) {
-                Object existingPayload = loadStatePayload(category, existingKey);
-                plan.addItem(new PlanItem(Action.DELETE, category, existingKey,
-                        cosmosStateReference(category, existingKey), existingPayload));
+        // Add DELETE items only when explicitly requested via changed files
+        for (String deleteKey : deleteKeys) {
+            Object existingPayload = loadStatePayload(category, deleteKey);
+            plan.addItem(new PlanItem(Action.DELETE, category, deleteKey,
+                    cosmosStateReference(category, deleteKey), existingPayload));
+        }
+    }
+
+    private Map<FileCategory, Set<String>> detectDeletes(List<Path> changedPaths) {
+        Map<FileCategory, Set<String>> deletes = new EnumMap<>(FileCategory.class);
+        if (changedPaths == null || changedPaths.isEmpty()) {
+            return deletes;
+        }
+        for (Path path : changedPaths) {
+            try {
+                if (path == null || Files.exists(path)) {
+                    continue;
+                }
+                FileParsingStrategy strategy = strategyFactory.resolve(path);
+                FileCategory category = strategy.getCategory();
+                if (category == null) {
+                    log.warn("Skipping delete for {} because category could not be resolved", path);
+                    continue;
+                }
+                String key = PathUtils.baseName(path);
+                if (key == null || key.isBlank()) {
+                    log.warn("Skipping delete for {} because no key could be derived", path);
+                    continue;
+                }
+                deletes.computeIfAbsent(category, ignored -> new LinkedHashSet<>())
+                        .add(key);
+            } catch (UnsupportedFilePathException | UnsupportedFileCategoryException e) {
+                log.warn("Ignoring unsupported file {}: {}", path, e.getMessage());
+            } catch (Exception e) {
+                log.error("Failed to process delete candidate {}: {}", path, e.getMessage(), e);
             }
         }
+        return deletes;
     }
 
     private boolean payloadsEqual(Object left, Object right) {
