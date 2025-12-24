@@ -8,7 +8,8 @@ import com.cac.iam.service.apply.apiservice.PlanItemActionService;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class AbstractPlanItemApplierTest {
 

@@ -2,9 +2,7 @@ package com.cac.iam;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.WebApplicationType;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
 class IamApplicationTest {

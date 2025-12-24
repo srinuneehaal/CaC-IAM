@@ -2,30 +2,22 @@ package com.cac.iam.repository;
 
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosException;
-import com.azure.cosmos.models.CosmosItemRequestOptions;
-import com.azure.cosmos.models.CosmosQueryRequestOptions;
-import com.azure.cosmos.models.PartitionKey;
-import com.azure.cosmos.models.SqlParameter;
-import com.azure.cosmos.models.SqlQuerySpec;
+import com.azure.cosmos.models.*;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.StateDocument;
 import com.cac.iam.model.StateSnapshot;
+import com.cac.iam.util.LoggerProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.identity.model.CreateUserRequest;
-import com.cac.iam.util.LoggerProvider;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Repository

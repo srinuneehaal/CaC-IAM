@@ -1,7 +1,6 @@
 package com.cac.iam.service.plan;
 
 import com.cac.iam.config.EnvironmentLookup;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

@@ -1,6 +1,6 @@
 {
   "code": "allow-access-full-policy",
-  "description": "Example up policy demonstrating their creation update",
+  "description": "Example policy demonstrating their creation",
   "applications": [
     "LUSID"
   ],

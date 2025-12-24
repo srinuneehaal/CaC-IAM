@@ -2,7 +2,6 @@ package com.cac.iam.service.apply.apiservice;
 
 import com.cac.iam.util.LoggerProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.finbourne.access.ApiException;
 import com.finbourne.access.api.RolesApi;
 import com.finbourne.access.model.RoleCreationRequest;
 import com.finbourne.access.model.RoleUpdateRequest;

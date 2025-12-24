@@ -2,7 +2,6 @@ package com.cac.iam.service.apply.apiservice;
 
 import com.cac.iam.util.LoggerProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.finbourne.access.ApiException;
 import com.finbourne.access.api.PoliciesApi;
 import com.finbourne.access.model.PolicyCreationRequest;
 import com.finbourne.access.model.PolicyUpdateRequest;

@@ -6,7 +6,7 @@
     "sourcePath" : "changedfiles\\policies\\allow-access-full-policy.json",
     "payload" : {
       "code" : "allow-access-full-policy",
-      "description" : "Example up policy demonstrating their creation update",
+      "description" : "Example policy demonstrating their creation",
       "applications" : [ "LUSID" ],
       "grant" : "ALLOW",
       "selectors" : [ {
@@ -49,7 +49,7 @@
     },
     "beforePayload" : {
       "code" : "allow-access-full-policy",
-      "description" : "Example policy demonstrating their creation update",
+      "description" : "Example policy demonstrating their creation updated",
       "applications" : [ "LUSID" ],
       "grant" : "ALLOW",
       "selectors" : [ {
