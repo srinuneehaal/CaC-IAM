@@ -1,9 +1,9 @@
 sequenceDiagram
     participant Env as CHANGED_FILES
-    participant Runner as PlanRunner (--plan)
+    participant Runner as PlanRunner plan
     participant Service as PlanService
     participant Factory as FileParsingStrategyFactory
-    participant Repo as StateRepository (Cosmos)
+    participant Repo as StateRepository Cosmos
     participant Order as PlanOrderingRuleEngine
     participant Writer as PlanWriter
     participant Report as MasterPlanHtmlReportGenerator

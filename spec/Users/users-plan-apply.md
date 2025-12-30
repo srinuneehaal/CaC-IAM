@@ -7,13 +7,13 @@ Users map to Identity profiles and are applied after policies/roles by default.
 ```mermaid
 flowchart TD
     Env[CHANGED_FILES list]
-    Runner[PlanRunner (--plan)]
-    Parse[UserFileParsingStrategy -> LoadedFile(USERS)]
-    State[StateRepository.findPayload(USERS, key)]
+    Runner[PlanRunner plan]
+    Parse[UserFileParsingStrategy to LoadedFile USERS]
+    State[StateRepository findPayload USERS]
     Compare[PlanService.payloadsEqual]
-    New[PlanItem Action.NEW]
-    Update[PlanItem Action.UPDATE]
-    Delete[PlanItem Action.DELETE]
+    New[PlanItem NEW]
+    Update[PlanItem UPDATE]
+    Delete[PlanItem DELETE]
 
     Env --> Runner --> Parse --> Compare
     Parse --> State --> Compare
@@ -30,7 +30,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Plan[MasterPlan item (USERS)]
+    Plan[MasterPlan_USERS]
     Applier[UserPlanItemApplier]
     Api[UserApiService]
     StateSvc[StateFileService]

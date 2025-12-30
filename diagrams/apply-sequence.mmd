@@ -1,11 +1,11 @@
 sequenceDiagram
-    participant Runner as ApplyRunner (--apply)
+    participant Runner as ApplyRunner apply
     participant Apply as PlanApplyService
     participant Reader as PlanReader
-    participant Applier as PlanItemApplier (per category)
+    participant Applier as PlanItemApplier per category
     participant Api as PlanItemActionService
     participant StateSvc as StateFileService
-    participant Repo as StateRepository (Cosmos)
+    participant Repo as StateRepository Cosmos
 
     Runner->>Apply: applyPlan()
     Apply->>Reader: read masterplan.json

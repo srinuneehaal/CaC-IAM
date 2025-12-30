@@ -7,13 +7,13 @@ Roles bundle policies for specific user groups. They are planned after policies 
 ```mermaid
 flowchart TD
     Env[CHANGED_FILES list]
-    Runner[PlanRunner (--plan)]
-    Parse[RoleFileParsingStrategy -> LoadedFile(ROLES)]
-    State[StateRepository.findPayload(ROLES, key)]
+    Runner[PlanRunner plan]
+    Parse[RoleFileParsingStrategy to LoadedFile ROLES]
+    State[StateRepository findPayload ROLES]
     Compare[PlanService.payloadsEqual]
-    New[PlanItem Action.NEW]
-    Update[PlanItem Action.UPDATE]
-    Delete[PlanItem Action.DELETE]
+    New[PlanItem NEW]
+    Update[PlanItem UPDATE]
+    Delete[PlanItem DELETE]
 
     Env --> Runner --> Parse --> Compare
     Parse --> State --> Compare
@@ -30,7 +30,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Plan[MasterPlan item (ROLES)]
+    Plan[MasterPlan_ROLES]
     Applier[RolePlanItemApplier]
     Api[RoleApiService]
     StateSvc[StateFileService]

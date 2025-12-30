@@ -7,13 +7,13 @@ Policies capture coarse IAM permissions and are planned/applied before dependent
 ```mermaid
 flowchart TD
     Env[CHANGED_FILES list]
-    Runner[PlanRunner (--plan)]
-    Parse[PolicyFileParsingStrategy -> LoadedFile(POLICIES)]
-    State[StateRepository.findPayload(POLICIES, key)]
+    Runner[PlanRunner plan]
+    Parse[PolicyFileParsingStrategy to LoadedFile POLICIES]
+    State[StateRepository findPayload POLICIES]
     Compare[PlanService.payloadsEqual]
-    New[PlanItem Action.NEW]
-    Update[PlanItem Action.UPDATE]
-    Delete[PlanItem Action.DELETE]
+    New[PlanItem NEW]
+    Update[PlanItem UPDATE]
+    Delete[PlanItem DELETE]
 
     Env --> Runner --> Parse --> Compare
     Parse --> State --> Compare
@@ -30,7 +30,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Plan[MasterPlan item (POLICIES)]
+    Plan[MasterPlan_POLICIES]
     Applier[PolicyPlanItemApplier]
     Api[PolicyApiService]
     StateSvc[StateFileService]
