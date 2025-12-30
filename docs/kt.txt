@@ -1,0 +1,5 @@
+KT starter pack:
+- Read docs/architecture.md for the pipeline picture.
+- Skim docs/file-processing.md to map directories to models.
+- Walk through docs/item-workflow.md with one sample policy/role/user file.
+- Use docs/integration-test-plan.md for a live demo and questions.

@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Runner as ApplyRunner (--apply)
+    participant Apply as PlanApplyService
+    participant Reader as PlanReader
+    participant Applier as PlanItemApplier (per category)
+    participant Api as PlanItemActionService
+    participant StateSvc as StateFileService
+    participant Repo as StateRepository (Cosmos)
+
+    Runner->>Apply: applyPlan()
+    Apply->>Reader: read masterplan.json
+    Reader-->>Apply: MasterPlan
+    loop each PlanItem
+        Apply->>Applier: resolve by FileCategory
+        Applier->>Api: create/update/delete
+        Apply->>StateSvc: applyStateChange(item)
+        StateSvc->>Repo: upsert/delete
+    end

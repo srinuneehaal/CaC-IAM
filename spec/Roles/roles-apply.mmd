@@ -1,0 +1,9 @@
+flowchart TD
+    PlanItem[PlanItem ROLES]
+    Applier[RolePlanItemApplier]
+    Api[RoleApiService]
+    StateSvc[StateFileService]
+    Cosmos[CosmosStateRepository]
+
+    PlanItem --> Applier --> Api
+    Api --> StateSvc --> Cosmos

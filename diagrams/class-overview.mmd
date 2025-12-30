@@ -1,0 +1,33 @@
+classDiagram
+    class PlanRunner {
+      run(args)
+    }
+    class PlanService {
+      buildPlan(List~Path~)
+    }
+    class FileParsingStrategyFactory
+    class FileParsingStrategy
+    class PlanOrderingRuleEngine
+    class PlanWriter
+    class MasterPlanHtmlReportGenerator
+    class PlanApplyService {
+      applyPlan()
+    }
+    class PlanReader
+    class PlanItemApplier
+    class PlanItemActionService
+    class StateFileService
+    class StateRepository
+
+    PlanRunner --> PlanService
+    PlanRunner --> PlanWriter
+    PlanRunner --> MasterPlanHtmlReportGenerator
+    PlanService --> FileParsingStrategyFactory
+    FileParsingStrategyFactory --> FileParsingStrategy
+    PlanService --> PlanOrderingRuleEngine
+    PlanService --> StateRepository
+    PlanApplyService --> PlanReader
+    PlanApplyService --> PlanItemApplier
+    PlanApplyService --> StateFileService
+    StateFileService --> StateRepository
+    PlanItemApplier --> PlanItemActionService

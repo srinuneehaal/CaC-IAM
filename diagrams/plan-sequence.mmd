@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant Env as CHANGED_FILES
+    participant Runner as PlanRunner (--plan)
+    participant Service as PlanService
+    participant Factory as FileParsingStrategyFactory
+    participant Repo as StateRepository (Cosmos)
+    participant Order as PlanOrderingRuleEngine
+    participant Writer as PlanWriter
+    participant Report as MasterPlanHtmlReportGenerator
+
+    Env->>Runner: paths
+    Runner->>Service: buildPlan(paths)
+    loop each path
+        Service->>Factory: resolve(path)
+        Factory-->>Service: FileParsingStrategy
+        Service->>Repo: findPayload(category,key)
+    end
+    Service->>Order: applyOrdering(plan)
+    Service-->>Runner: MasterPlan
+    Runner->>Writer: write plan/masterplan.json
+    alt report enabled
+        Runner->>Report: generate masterplan.html
+    end

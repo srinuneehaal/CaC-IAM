@@ -1,0 +1,16 @@
+flowchart TD
+    Env[CHANGED_FILES]
+    Runner[PlanRunner]
+    Strategy[PolicyFileParsingStrategy]
+    Loaded[LoadedFile (POLICIES)]
+    State[StateRepository.findPayload]
+    Compare[PlanService.payloadsEqual]
+    New[PlanItem NEW]
+    Update[PlanItem UPDATE]
+    Delete[PlanItem DELETE]
+
+    Env --> Runner --> Strategy --> Loaded --> Compare
+    Loaded --> State --> Compare
+    Compare -->|no state| New
+    Compare -->|differs| Update
+    Runner -->|path missing| Delete
