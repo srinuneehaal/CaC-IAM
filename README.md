@@ -27,6 +27,7 @@ Takes IAM JSON changes (policies, roles, users), generates an ordered master pla
 ## Configuration
 - **Paths**: `cacex.paths.changed-files-dir`, `plan-dir`, `master-plan-file`, `policies-dir-name`, `roles-dir-name`, `users-dir-name`; env overrides `CHANGED_FILES_DIR`, `PLAN_DIR`, `MASTER_PLAN_FILE`.  
 - **Cosmos**: `azure.cosmos.uri`, `key`, `database`, `container`, `partition-key` (emulator defaults in `application-local.properties`).  
+- Cosmos details (container shape, access patterns, emulator tips): `specifications/docs/cosmos-db.md`.  
 - **Reporting**: `MASTER_PLAN_REPORT_ENABLED` (`false/off/no/0` disables HTML).  
 - **Logging**: `logging.level.com.cac.iam=INFO` default.
 
