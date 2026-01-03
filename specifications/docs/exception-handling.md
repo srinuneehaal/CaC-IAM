@@ -33,3 +33,6 @@ How CaC-IAM treats failures across plan and apply, and what to follow when addin
 - Keep exceptions unchecked and message-rich; include identifiers and cause.
 - When integrating new external calls, wrap SDK exceptions in a `PlanApplyException` (apply) or `PlanProcessingException` (plan) with the key/action to avoid leaking SDK-specific types across layers.
 - For new IO utilities, mirror `PlanWriter`/`PlanReader` by throwing `IllegalStateException` so runners can treat them as fatal.
+
+## Diagram
+- Sequence of failure handling: `specifications/diagrams/exception-handling.mmd` (Mermaid).

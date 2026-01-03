@@ -1,0 +1,26 @@
+flowchart TD
+    subgraph Plan_path
+        P0["PlanRunner --plan"] --> P1["PlanService buildPlan"]
+        P1 -->|"UnsupportedFilePath/Category"| P1warn["Warn and skip file"]
+        P1 -->|"PlanProcessingException"| Pfatal["PlanRunner logs error; plan fails"]
+        P1 --> P2["PlanWriter and MasterPlanHtmlReportGenerator"]
+        P2 -->|"IllegalState (IO/template)"| Pfatal
+    end
+
+    subgraph Apply_path
+        A0["ApplyRunner --apply"] --> A1["PlanApplyService applyPlan"]
+        A1 -->|"PlanReader IllegalState (missing/unreadable plan)"| Afatal["ApplyRunner logs error; apply stops"]
+        A1 --> A2["Resolve PlanItemApplier by FileCategory"]
+        A2 -->|"MissingApplierException"| Askip["Error log; item skipped"]
+        A2 --> A3["PlanItemApplier (AbstractPlanItemApplier)"]
+        A3 -->|"InvalidPlanItemException / PlanApplyException"| Aerr["Error log; item skipped"]
+        A3 --> Api["PlanItemActionService (create/update/delete)"]
+        Api --> A4["StateFileService applyStateChange"]
+        A4 -->|"PlanApplyException"| Astatewarn["Error log; state update skipped"]
+        A4 --> Repo["CosmosStateRepository"]
+        Repo -->|"CosmosException"| Arecover["Warn/error log; empty result/ignore 404"]
+    end
+
+    subgraph Health_observability
+        H1["CosmosHealthIndicator"] -->|"CosmosException"| H2["Health DOWN with statusCode detail"]
+    end
