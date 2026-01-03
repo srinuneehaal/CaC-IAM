@@ -59,4 +59,4 @@ Takes IAM JSON changes (policies, roles, users), generates an ordered master pla
 - HTML report is optional; disable in CI if unnecessary.
 
 ## More detail
-For deeper dives, see `docs/architecture.md`, `docs/plan-lifecycle.md`, and category specs under `spec/`. For Confluence, use `confluence_docs/` and attach rendered diagram PNGs.
+For deeper dives, see `docs/architecture.md`, `docs/plan-lifecycle.md`, `docs/exception-handling.md`, and category specs under `spec/`. For Confluence, use `confluence_docs/` and attach rendered diagram PNGs.
