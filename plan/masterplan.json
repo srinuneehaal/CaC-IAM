@@ -1,0 +1,94 @@
+{
+  "items" : [ {
+    "action" : "UPDATE",
+    "fileCategory" : "POLICIES",
+    "key" : "allow-access-full-policy",
+    "sourcePath" : "configs\\policies\\allow-access-full-policy.json",
+    "payload" : {
+      "code" : "allow-access-full-policy",
+      "description" : "New Example policy demonstrating their creation update 2333",
+      "applications" : [ "LUSID" ],
+      "grant" : "ALLOW",
+      "selectors" : [ {
+        "idSelectorDefinition" : {
+          "identifier" : {
+            "scope" : "official"
+          },
+          "actions" : [ {
+            "scope" : "default",
+            "activity" : "Read",
+            "entity" : "Portfolio"
+          }, {
+            "scope" : "default",
+            "activity" : "Aggregate",
+            "entity" : "Portfolio"
+          } ],
+          "name" : "access-official-scope",
+          "description" : "Allow readonly access to the 'official' scope"
+        }
+      } ],
+      "when" : {
+        "activate" : "2018-03-05T18:00:00.001Z",
+        "deactivate" : "2018-03-05T18:00:00.001Z"
+      },
+      "for" : [ {
+        "effectiveRange" : {
+          "from" : "2018-03-05T18:00:00.001Z",
+          "to" : "2018-03-05T18:00:00.001Z"
+        }
+      }, {
+        "asAtRangeForSpec" : {
+          "from" : {
+            "dateTimeOffset" : "2018-03-05T18:00:00.001Z"
+          },
+          "to" : {
+            "value" : "AsAt=Latest"
+          }
+        }
+      } ]
+    },
+    "beforePayload" : {
+      "code" : "allow-access-full-policy",
+      "description" : "New Example policy demonstrating their creation update 23",
+      "applications" : [ "LUSID" ],
+      "grant" : "ALLOW",
+      "selectors" : [ {
+        "idSelectorDefinition" : {
+          "identifier" : {
+            "scope" : "official"
+          },
+          "actions" : [ {
+            "scope" : "default",
+            "activity" : "Read",
+            "entity" : "Portfolio"
+          }, {
+            "scope" : "default",
+            "activity" : "Aggregate",
+            "entity" : "Portfolio"
+          } ],
+          "name" : "access-official-scope",
+          "description" : "Allow readonly access to the 'official' scope"
+        }
+      } ],
+      "when" : {
+        "activate" : "2018-03-05T18:00:00.001Z",
+        "deactivate" : "2018-03-05T18:00:00.001Z"
+      },
+      "for" : [ {
+        "effectiveRange" : {
+          "from" : "2018-03-05T18:00:00.001Z",
+          "to" : "2018-03-05T18:00:00.001Z"
+        }
+      }, {
+        "asAtRangeForSpec" : {
+          "from" : {
+            "dateTimeOffset" : "2018-03-05T18:00:00.001Z"
+          },
+          "to" : {
+            "value" : "AsAt=Latest"
+          }
+        }
+      } ]
+    }
+  } ]
+}

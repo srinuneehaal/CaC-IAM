@@ -4,16 +4,25 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        
+        {
+            "type": "java",
+            "name": "IamApplication",
+            "request": "launch",
+            "mainClass": "com.cac.iam.IamApplication",
+            "projectName": "cac-iam"
+        },
         {
             "type": "java",
             "name": "PlanGeneratorApplication",
             "request": "launch",
             "mainClass": "com.cac.iam.IamApplication",
             "projectName": "cac-ex",
-            "args": ["--plan"],
+            "args": [
+                "--plan"
+            ],
             "env": {
-            "CHANGED_FILES": "changedfiles/ATG/derivedportfolios/derivedportfolios-ATG.json changedfiles/ATG/portfoliogroups/portfoliogroups-ATG.json changedfiles/DLD/derivedportfolios/derivedportfolios-DLD.json changedfiles/DLD/portfoliogroups/portfoliogroups-DLD.json"
+                "CHANGED_FILES": "changedfiles/ATG/derivedportfolios/derivedportfolios-ATG.json changedfiles/ATG/portfoliogroups/portfoliogroups-ATG.json changedfiles/DLD/derivedportfolios/derivedportfolios-DLD.json changedfiles/DLD/portfoliogroups/portfoliogroups-DLD.json"
             }
         }
     ]

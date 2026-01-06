@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- Define the Application Insights Appender -->
+    <appender name="AIAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
+        <!-- The connection string is picked up automatically from the Spring Environment -->
+    </appender>
+
+    <!-- Console Appender (optional, for local development visibility) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Route logs to both Console and Application Insights -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="AIAppender"/>
+    </root>
+
+    <!-- Set a specific logging level for Application Insights SDK to avoid excessive internal logs -->
+    <logger name="com.microsoft.applicationinsights" level="WARN" additivity="false"/>
+</configuration>
