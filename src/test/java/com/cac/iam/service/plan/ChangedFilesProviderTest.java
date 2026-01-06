@@ -22,4 +22,15 @@ class ChangedFilesProviderTest {
         assertThat(paths).hasSize(2);
         assertThat(paths.get(0).toString()).contains("a\\b.json").isNotBlank();
     }
+
+    @Test
+    void parsesPathsWithSpacesWhenSplitByJsonExtension() {
+        String envValue = "configs/policies/allow-access.json configs/policies/allow1 access-full-policy.json";
+        ChangedFilesProvider provider = new ChangedFilesProvider(key -> envValue);
+
+        List<Path> paths = provider.getChangedPaths();
+        assertThat(paths).hasSize(2);
+        assertThat(paths.get(0).toString()).endsWith("allow-access.json");
+        assertThat(paths.get(1).getFileName().toString()).isEqualTo("allow1 access-full-policy.json");
+    }
 }
