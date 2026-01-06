@@ -81,7 +81,8 @@ public class PlanOrderingRuleEngine {
                 );
             }
         }
-        int fallbackActionIndex = DEFAULT_ACTION_ORDER.indexOf(item.getAction());
+        Action action = item != null ? item.getAction() : null;
+        int fallbackActionIndex = action == null ? -1 : DEFAULT_ACTION_ORDER.indexOf(action);
         if (fallbackActionIndex < 0) {
             fallbackActionIndex = DEFAULT_ACTION_ORDER.size();
         }

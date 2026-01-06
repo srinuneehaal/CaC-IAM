@@ -16,6 +16,9 @@ class LoadedFileTest {
         LoadedFile f2 = new LoadedFile(FileCategory.ROLES, "k", path, payload);
 
         assertThat(f1).isEqualTo(f2);
+        assertThat(f1).isEqualTo(f1);
+        assertThat(f1).isNotEqualTo(null);
+        assertThat(f1).isNotEqualTo("different-type");
         assertThat(f1.hashCode()).isEqualTo(f2.hashCode());
         assertThat(f1.toString()).contains("ROLES").contains("k");
     }
