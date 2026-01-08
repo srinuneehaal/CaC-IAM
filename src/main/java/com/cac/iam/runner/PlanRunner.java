@@ -8,6 +8,7 @@ import com.cac.iam.service.plan.MasterPlanHtmlReportGenerator;
 import com.cac.iam.service.plan.PlanWriter;
 import com.cac.iam.util.CommandLineFlags;
 import com.cac.iam.util.LoggerProvider;
+import com.cac.iam.util.ShutdownManager;
 import org.slf4j.Logger;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ public class PlanRunner implements CommandLineRunner {
     private final PlanService planService;
     private final PlanWriter planWriter;
     private final MasterPlanHtmlReportGenerator masterPlanHtmlReportGenerator;
+    private final ShutdownManager shutdownManager;
     private EnvironmentLookup envLookup = System::getenv;
 
     /**
@@ -37,16 +39,27 @@ public class PlanRunner implements CommandLineRunner {
      * @param planWriter           writer for output plans
      * @param masterPlanHtmlReportGenerator report generator that creates `masterplan.html`
      */
-    @org.springframework.beans.factory.annotation.Autowired
     public PlanRunner(ChangedFilesProvider changedFilesProvider,
                       PlanService planService,
                       PlanWriter planWriter,
                       MasterPlanHtmlReportGenerator masterPlanHtmlReportGenerator,
                       LoggerProvider loggerProvider) {
+        this(changedFilesProvider, planService, planWriter, masterPlanHtmlReportGenerator,
+                loggerProvider, ShutdownManager.noOp());
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public PlanRunner(ChangedFilesProvider changedFilesProvider,
+                      PlanService planService,
+                      PlanWriter planWriter,
+                      MasterPlanHtmlReportGenerator masterPlanHtmlReportGenerator,
+                      LoggerProvider loggerProvider,
+                      ShutdownManager shutdownManager) {
         this.changedFilesProvider = changedFilesProvider;
         this.planService = planService;
         this.planWriter = planWriter;
         this.masterPlanHtmlReportGenerator = masterPlanHtmlReportGenerator;
+        this.shutdownManager = shutdownManager;
         this.log = loggerProvider.getLogger(getClass());
     }
 
@@ -64,10 +77,14 @@ public class PlanRunner implements CommandLineRunner {
         if (args != null && args.length > 1) {
             log.warn("Extra arguments detected alongside {}: {}", ARG_PLAN, List.of(args));
         }
+        int exitCode = 0;
         try {
             executePlan();
         } catch (Exception e) {
             log.error("Plan generation failed: {}", e.getMessage(), e);
+            exitCode = 1;
+        } finally {
+            shutdownManager.shutdown(exitCode);
         }
     }
 
