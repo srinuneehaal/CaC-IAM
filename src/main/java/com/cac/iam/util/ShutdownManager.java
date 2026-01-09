@@ -14,28 +14,39 @@ public class ShutdownManager {
 
     private final ConfigurableApplicationContext context;
     private final boolean enabled;
+    private final ExitStrategy exitStrategy;
 
     @Autowired
     public ShutdownManager(ConfigurableApplicationContext context) {
-        this(context, true);
+        this(context, true, System::exit);
     }
 
-    private ShutdownManager(ConfigurableApplicationContext context, boolean enabled) {
+    ShutdownManager(ConfigurableApplicationContext context, boolean enabled, ExitStrategy exitStrategy) {
         this.context = context;
         this.enabled = enabled;
+        this.exitStrategy = exitStrategy;
     }
 
     public void shutdown(int exitCode) {
         if (!enabled) {
             return;
         }
-        int code = context != null
-                ? SpringApplication.exit(context, () -> exitCode)
-                : exitCode;
-        System.exit(code);
+        int code = computeExitCode(context, exitCode);
+        exitStrategy.exit(code);
+    }
+
+    protected int computeExitCode(ConfigurableApplicationContext ctx, int requestedExitCode) {
+        return ctx != null
+                ? SpringApplication.exit(ctx, () -> requestedExitCode)
+                : requestedExitCode;
     }
 
     public static ShutdownManager noOp() {
-        return new ShutdownManager(null, false);
+        return new ShutdownManager(null, false, code -> { });
+    }
+
+    @FunctionalInterface
+    interface ExitStrategy {
+        void exit(int code);
     }
 }
