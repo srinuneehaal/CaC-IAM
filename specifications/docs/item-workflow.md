@@ -21,7 +21,8 @@ Use this checklist to add or change IAM assets and drive them through the plan/a
 
 ## 4) Apply
 1. Run `mvn -q -DskipTests spring-boot:run -- --apply`.  
-2. The apply phase rehydrates payloads, dispatches to the appropriate API service, and persists state to Cosmos. Errors are logged per item; the run continues for other entries.
+2. The apply phase rehydrates payloads, dispatches to the appropriate API service, and persists state to Cosmos. Each item is tracked individually, then the run ends with a success/failure summary for all processed items.  
+3. If any item fails during API apply or state persistence, the run exits non-zero so CI or automation can detect the partial failure.
 
 ## 5) Verify and iterate
 - Re-run `--plan` to confirm no unexpected changes remain after state persistence.  

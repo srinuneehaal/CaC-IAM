@@ -26,6 +26,16 @@ public class CosmosStateProperties {
     @NotBlank
     private String partitionKey = "/typeOfItem";
 
+    private String throughputControlGroupName;
+
+    private Integer throughputControlTargetThroughput;
+
+    private Double throughputControlTargetThroughputThreshold;
+
+    private boolean throughputControlDefaultGroup;
+
+    private boolean throughputControlContinueOnInitError;
+
     public String getUri() {
         return uri;
     }
@@ -64,5 +74,45 @@ public class CosmosStateProperties {
 
     public void setPartitionKey(String partitionKey) {
         this.partitionKey = partitionKey;
+    }
+
+    public String getThroughputControlGroupName() {
+        return throughputControlGroupName;
+    }
+
+    public void setThroughputControlGroupName(String throughputControlGroupName) {
+        this.throughputControlGroupName = throughputControlGroupName;
+    }
+
+    public Integer getThroughputControlTargetThroughput() {
+        return throughputControlTargetThroughput;
+    }
+
+    public void setThroughputControlTargetThroughput(Integer throughputControlTargetThroughput) {
+        this.throughputControlTargetThroughput = throughputControlTargetThroughput;
+    }
+
+    public Double getThroughputControlTargetThroughputThreshold() {
+        return throughputControlTargetThroughputThreshold;
+    }
+
+    public void setThroughputControlTargetThroughputThreshold(Double throughputControlTargetThroughputThreshold) {
+        this.throughputControlTargetThroughputThreshold = throughputControlTargetThroughputThreshold;
+    }
+
+    public boolean isThroughputControlDefaultGroup() {
+        return throughputControlDefaultGroup;
+    }
+
+    public void setThroughputControlDefaultGroup(boolean throughputControlDefaultGroup) {
+        this.throughputControlDefaultGroup = throughputControlDefaultGroup;
+    }
+
+    public boolean isThroughputControlContinueOnInitError() {
+        return throughputControlContinueOnInitError;
+    }
+
+    public void setThroughputControlContinueOnInitError(boolean throughputControlContinueOnInitError) {
+        this.throughputControlContinueOnInitError = throughputControlContinueOnInitError;
     }
 }

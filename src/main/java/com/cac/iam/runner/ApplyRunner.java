@@ -1,6 +1,7 @@
 package com.cac.iam.runner;
 
 import com.cac.iam.service.PlanApplyService;
+import com.cac.iam.service.apply.PlanApplySummary;
 import com.cac.iam.util.CommandLineFlags;
 import com.cac.iam.util.LoggerProvider;
 import com.cac.iam.util.ShutdownManager;
@@ -40,7 +41,10 @@ public class ApplyRunner implements CommandLineRunner {
         }
         int exitCode = 0;
         try {
-            applyService.applyPlan();
+            PlanApplySummary summary = applyService.applyPlan();
+            if (summary.hasFailures()) {
+                exitCode = 1;
+            }
         } catch (Exception e) {
             log.error("Master plan application failed: {}", e.getMessage(), e);
             exitCode = 1;

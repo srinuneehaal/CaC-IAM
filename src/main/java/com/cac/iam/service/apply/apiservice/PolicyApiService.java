@@ -1,5 +1,6 @@
 package com.cac.iam.service.apply.apiservice;
 
+import com.cac.iam.exception.ApiServiceException;
 import com.cac.iam.util.LoggerProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finbourne.access.api.PoliciesApi;
@@ -56,11 +57,9 @@ public class PolicyApiService implements PlanItemActionService<PolicyCreationReq
     void execute(Callable<?> action, String verb, String key) {
         try {
             log.info("Policy API execute the call with fbn {} {}", verb, key);
-           // action.call();
-//        } catch (ApiException e) {
-//            throw new RuntimeException("Access API failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
+            // action.call();
         } catch (Exception e) {
-            throw new RuntimeException("Unexpected failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
+            throw new ApiServiceException("Unexpected failure while attempting to " + verb + " " + key + ": " + e.getMessage(), e);
         }
     }
 }

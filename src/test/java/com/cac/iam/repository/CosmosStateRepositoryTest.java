@@ -4,6 +4,7 @@ import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.*;
 import com.azure.cosmos.util.CosmosPagedIterable;
+import com.cac.iam.config.CosmosStateProperties;
 import com.cac.iam.config.JacksonConfiguration;
 import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.StateDocument;
@@ -41,7 +42,10 @@ class CosmosStateRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        repository = new CosmosStateRepository(container, objectMapper, new LoggerProvider());
+        CosmosStateProperties properties = new CosmosStateProperties();
+        properties.setThroughputControlGroupName("state-high");
+        properties.setThroughputControlTargetThroughput(400);
+        repository = new CosmosStateRepository(container, objectMapper, new LoggerProvider(), properties);
     }
 
     @Test
@@ -50,12 +54,8 @@ class CosmosStateRepositoryTest {
         StateDocument role = document("r1", "{\"code\":\"r1\"}");
         StateDocument user = document("u1", "{\"login\":\"u1\"}");
 
-        when(container.readAllItems(new PartitionKey(FileCategory.POLICIES.name()), StateDocument.class))
-                .thenReturn(iterable(List.of(policy)));
-        when(container.readAllItems(new PartitionKey(FileCategory.ROLES.name()), StateDocument.class))
-                .thenReturn(iterable(List.of(role)));
-        when(container.readAllItems(new PartitionKey(FileCategory.USERS.name()), StateDocument.class))
-                .thenReturn(iterable(List.of(user)));
+        when(container.readAllItems(any(PartitionKey.class), any(CosmosQueryRequestOptions.class), eq(StateDocument.class)))
+                .thenReturn(iterable(List.of(policy)), iterable(List.of(role)), iterable(List.of(user)));
 
         StateSnapshot snapshot = repository.loadSnapshot();
 
@@ -70,11 +70,11 @@ class CosmosStateRepositoryTest {
 
         CosmosException notFound = mock(CosmosException.class);
         when(notFound.getStatusCode()).thenReturn(404);
-        when(container.readItem(eq("absent"), any(PartitionKey.class), eq(StateDocument.class)))
+        when(container.readItem(eq("absent"), any(PartitionKey.class), any(CosmosItemRequestOptions.class), eq(StateDocument.class)))
                 .thenThrow(notFound);
         assertThat(repository.findPayload(FileCategory.POLICIES, "absent", PolicyCreationRequest.class)).isEmpty();
 
-        when(container.readItem(eq("fail"), any(PartitionKey.class), eq(StateDocument.class)))
+        when(container.readItem(eq("fail"), any(PartitionKey.class), any(CosmosItemRequestOptions.class), eq(StateDocument.class)))
                 .thenThrow(new RuntimeException("boom"));
         assertThat(repository.findPayload(FileCategory.POLICIES, "fail", PolicyCreationRequest.class)).isEmpty();
     }
@@ -83,7 +83,8 @@ class CosmosStateRepositoryTest {
     void findPayloadReturnsMappedPayload() {
         StateDocument document = document("p1", "{\"code\":\"p1\"}");
         when(itemResponse.getItem()).thenReturn(document);
-        when(container.readItem(eq("p1"), any(PartitionKey.class), eq(StateDocument.class))).thenReturn(itemResponse);
+        when(container.readItem(eq("p1"), any(PartitionKey.class), any(CosmosItemRequestOptions.class), eq(StateDocument.class)))
+                .thenReturn(itemResponse);
 
         Optional<PolicyCreationRequest> payload =
                 repository.findPayload(FileCategory.POLICIES, "p1", PolicyCreationRequest.class);
@@ -114,14 +115,14 @@ class CosmosStateRepositoryTest {
         verify(container).upsertItem(any(StateDocument.class), any(PartitionKey.class), any(CosmosItemRequestOptions.class));
 
         repository.delete(FileCategory.POLICIES, "");
-        verify(container, never()).deleteItem(anyString(), any(PartitionKey.class), any());
+        verify(container, never()).deleteItem(anyString(), any(PartitionKey.class), any(CosmosItemRequestOptions.class));
 
         CosmosException notFound = mock(CosmosException.class);
         when(notFound.getStatusCode()).thenReturn(404);
-        doThrow(notFound).when(container).deleteItem(eq("missing"), any(PartitionKey.class), isNull());
+        doThrow(notFound).when(container).deleteItem(eq("missing"), any(PartitionKey.class), any(CosmosItemRequestOptions.class));
         repository.delete(FileCategory.POLICIES, "missing");
 
-        doThrow(new RuntimeException("boom")).when(container).deleteItem(eq("p1"), any(PartitionKey.class), isNull());
+        doThrow(new RuntimeException("boom")).when(container).deleteItem(eq("p1"), any(PartitionKey.class), any(CosmosItemRequestOptions.class));
         repository.delete(FileCategory.POLICIES, "p1");
     }
 
@@ -129,7 +130,7 @@ class CosmosStateRepositoryTest {
     void loadByCategoryMapsKeysAndSkipsBadPayloads() {
         StateDocument valid = document("fallback", "{\"description\":\"d\"}");
         StateDocument invalid = document("bad", "\"just-string\"");
-        when(container.readAllItems(new PartitionKey(FileCategory.ROLES.name()), StateDocument.class))
+        when(container.readAllItems(any(PartitionKey.class), any(CosmosQueryRequestOptions.class), eq(StateDocument.class)))
                 .thenReturn(iterable(List.of(valid, invalid)));
 
         var result = repository.loadByCategory(FileCategory.ROLES, RoleCreationRequest.class);
@@ -141,7 +142,7 @@ class CosmosStateRepositoryTest {
     @Test
     void loadByCategoryHandlesCosmosException() {
         CosmosException cosmosError = mock(CosmosException.class);
-        when(container.readAllItems(new PartitionKey(FileCategory.USERS.name()), StateDocument.class))
+        when(container.readAllItems(any(PartitionKey.class), any(CosmosQueryRequestOptions.class), eq(StateDocument.class)))
                 .thenThrow(cosmosError);
 
         assertThat(repository.loadByCategory(FileCategory.USERS, CreateUserRequest.class)).isEmpty();

@@ -6,6 +6,7 @@ import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.MasterPlan;
 import com.cac.iam.model.PlanItem;
 import com.cac.iam.service.apply.PlanReader;
+import com.cac.iam.service.apply.PlanApplySummary;
 import com.cac.iam.service.apply.itemapply.PlanItemApplier;
 import com.cac.iam.util.LoggerProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -47,10 +49,12 @@ class PlanApplyServiceTest {
         plan.addItem(new PlanItem(Action.NEW, FileCategory.POLICIES, "k1", "p", new Object()));
         when(planReader.read()).thenReturn(plan);
 
-        service.applyPlan();
+        PlanApplySummary summary = service.applyPlan();
 
         verify(applier, times(1)).apply(any());
         verify(stateFileService, times(1)).applyStateChange(any());
+        assertThat(summary.successCount()).isEqualTo(1);
+        assertThat(summary.failureCount()).isZero();
     }
 
     @Test
@@ -60,9 +64,13 @@ class PlanApplyServiceTest {
         when(planReader.read()).thenReturn(plan);
         doThrow(new PlanApplyException("boom")).when(applier).apply(any());
 
-        service.applyPlan();
+        PlanApplySummary summary = service.applyPlan();
 
         verify(stateFileService, times(0)).applyStateChange(any());
+        assertThat(summary.failureCount()).isEqualTo(1);
+        assertThat(summary.getFailures()).singleElement()
+                .extracting(PlanApplySummary.ItemResult::message)
+                .isEqualTo("Apply failed: boom");
     }
 
     @Test
@@ -72,19 +80,24 @@ class PlanApplyServiceTest {
         plan.addItem(new PlanItem(Action.NEW, FileCategory.ROLES, "r1", "p", new Object()));
         when(planReader.read()).thenReturn(plan);
 
-        missingService.applyPlan();
+        PlanApplySummary summary = missingService.applyPlan();
 
         verifyNoInteractions(stateFileService);
+        assertThat(summary.failureCount()).isEqualTo(1);
+        assertThat(summary.getFailures()).singleElement()
+                .extracting(PlanApplySummary.ItemResult::message)
+                .isEqualTo("No applier found for category ROLES");
     }
 
     @Test
     void applyPlan_noItemsNoOps() {
         when(planReader.read()).thenReturn(new MasterPlan());
 
-        service.applyPlan();
+        PlanApplySummary summary = service.applyPlan();
 
         verify(applier, never()).apply(any());
         verifyNoInteractions(stateFileService);
+        assertThat(summary.isEmpty()).isTrue();
     }
 
     @Test
@@ -102,9 +115,12 @@ class PlanApplyServiceTest {
         when(planReader.read()).thenReturn(plan);
         doThrow(new RuntimeException("explode")).when(applier).apply(any());
 
-        service.applyPlan();
+        PlanApplySummary summary = service.applyPlan();
 
         verify(stateFileService, never()).applyStateChange(any());
+        assertThat(summary.getFailures()).singleElement()
+                .extracting(PlanApplySummary.ItemResult::message)
+                .isEqualTo("Unexpected apply error: explode");
     }
 
     @Test
@@ -114,9 +130,12 @@ class PlanApplyServiceTest {
         when(planReader.read()).thenReturn(plan);
         doThrow(new PlanApplyException("fail")).when(stateFileService).applyStateChange(any());
 
-        service.applyPlan();
+        PlanApplySummary summary = service.applyPlan();
 
         verify(applier, times(1)).apply(any());
+        assertThat(summary.getFailures()).singleElement()
+                .extracting(PlanApplySummary.ItemResult::message)
+                .isEqualTo("State update failed after successful apply: fail");
     }
 
     @Test
@@ -126,8 +145,11 @@ class PlanApplyServiceTest {
         when(planReader.read()).thenReturn(plan);
         doThrow(new RuntimeException("boom")).when(stateFileService).applyStateChange(any());
 
-        service.applyPlan();
+        PlanApplySummary summary = service.applyPlan();
 
         verify(applier, times(1)).apply(any());
+        assertThat(summary.getFailures()).singleElement()
+                .extracting(PlanApplySummary.ItemResult::message)
+                .isEqualTo("Unexpected state update error after successful apply: boom");
     }
 }

@@ -4,6 +4,7 @@ import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.*;
 import com.azure.cosmos.util.CosmosPagedIterable;
+import com.cac.iam.config.CosmosStateProperties;
 import com.cac.iam.model.FileCategory;
 import com.cac.iam.model.StateDocument;
 import com.cac.iam.model.StateSnapshot;
@@ -26,12 +27,20 @@ public class CosmosStateRepository implements StateRepository {
     private final Logger log;
     private final CosmosContainer container;
     private final ObjectMapper objectMapper;
+    private final String throughputControlGroupName;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public CosmosStateRepository(CosmosContainer container, ObjectMapper objectMapper, LoggerProvider loggerProvider) {
+    public CosmosStateRepository(CosmosContainer container,
+                                 ObjectMapper objectMapper,
+                                 LoggerProvider loggerProvider,
+                                 CosmosStateProperties properties) {
         this.container = container;
         this.objectMapper = objectMapper;
         this.log = loggerProvider.getLogger(getClass());
+        String groupName = properties.getThroughputControlGroupName();
+        boolean hasBudget = properties.getThroughputControlTargetThroughput() != null
+                || properties.getThroughputControlTargetThroughputThreshold() != null;
+        this.throughputControlGroupName = StringUtils.hasText(groupName) && hasBudget ? groupName : null;
     }
 
     /**
@@ -58,7 +67,10 @@ public class CosmosStateRepository implements StateRepository {
             return Optional.empty();
         }
         try {
-            StateDocument document = container.readItem(id, new PartitionKey(category.name()), StateDocument.class)
+            StateDocument document = container.readItem(id,
+                    new PartitionKey(category.name()),
+                    itemRequestOptions(),
+                    StateDocument.class)
                     .getItem();
             return Optional.ofNullable(toPayload(document, payloadType));
         } catch (CosmosException e) {
@@ -83,7 +95,7 @@ public class CosmosStateRepository implements StateRepository {
         SqlQuerySpec spec = new SqlQuerySpec("SELECT c.id FROM c WHERE c.typeOfItem = @typeOfItem", parameters);
         try {
             CosmosPagedIterable<StateDocument> documents = container.queryItems(spec,
-                    new CosmosQueryRequestOptions().setPartitionKey(new PartitionKey(category.name())),
+                    queryOptions(category),
                     StateDocument.class);
             return StreamSupport.stream(documents.spliterator(), false)
                     .map(StateDocument::getId)
@@ -112,7 +124,7 @@ public class CosmosStateRepository implements StateRepository {
             document.setId(id);
             document.setTypeOfItem(category.name());
             document.setData(objectMapper.valueToTree(payload));
-            container.upsertItem(document, new PartitionKey(category.name()), new CosmosItemRequestOptions());
+            container.upsertItem(document, new PartitionKey(category.name()), itemRequestOptions());
         } catch (Exception e) {
             log.error("Failed to upsert state for {} id {}: {}", category, id, e.getMessage(), e);
         }
@@ -125,7 +137,7 @@ public class CosmosStateRepository implements StateRepository {
             return;
         }
         try {
-            container.deleteItem(id, new PartitionKey(category.name()), null);
+            container.deleteItem(id, new PartitionKey(category.name()), itemRequestOptions());
         } catch (CosmosException e) {
             if (e.getStatusCode() == 404) {
                 log.info("State document {} for {} already absent", id, category);
@@ -144,7 +156,7 @@ public class CosmosStateRepository implements StateRepository {
         Map<String, T> results = new LinkedHashMap<>();
         try {
             CosmosPagedIterable<StateDocument> documents =
-                    container.readAllItems(new PartitionKey(category.name()), StateDocument.class);
+                    container.readAllItems(new PartitionKey(category.name()), queryOptions(), StateDocument.class);
             for (StateDocument document : documents) {
                 T payload = toPayload(document, payloadType);
                 String key = extractKey(payload, document);
@@ -158,6 +170,26 @@ public class CosmosStateRepository implements StateRepository {
             log.error("Unexpected error loading state for category {}: {}", category, e.getMessage(), e);
         }
         return results;
+    }
+
+    private CosmosQueryRequestOptions queryOptions() {
+        CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
+        if (StringUtils.hasText(throughputControlGroupName)) {
+            options.setThroughputControlGroupName(throughputControlGroupName);
+        }
+        return options;
+    }
+
+    private CosmosQueryRequestOptions queryOptions(FileCategory category) {
+        return queryOptions().setPartitionKey(new PartitionKey(category.name()));
+    }
+
+    private CosmosItemRequestOptions itemRequestOptions() {
+        CosmosItemRequestOptions options = new CosmosItemRequestOptions();
+        if (StringUtils.hasText(throughputControlGroupName)) {
+            options.setThroughputControlGroupName(throughputControlGroupName);
+        }
+        return options;
     }
 
     private <T> T toPayload(StateDocument document, Class<T> payloadType) {
